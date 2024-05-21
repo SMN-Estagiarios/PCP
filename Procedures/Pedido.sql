@@ -166,16 +166,27 @@ CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 								SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao
 	*/
 	BEGIN
+		--Declaracao de variáveis 
+		DECLARE @DataAtual DATE = GETDATE();
+
+
 		--Consulta dos pedidos em atraso 
 		SELECT p.Id,
 			   c.Nome AS NomeCliente,
 			   p.DataPedido,
 			   p.DataPromessa,
 			   p.DataEntrega,
-			   CASE WHEN DataEntrega IS NULL THEN 'Em Atraso' ELSE 'Entregue Com Atraso'END AS StatusPedido
+			   STRING_AGG(pd.Nome + ', Qtd: ' 
+								  + CAST(pp.Quantidade AS NVARCHAR), '/ ') AS DetalhesPedido
 			FROM [dbo].[Pedido] p WITH(NOLOCK)
-				INNER JOIN Cliente c
+				INNER JOIN [dbo].[Cliente] c WITH(NOLOCK)
 					ON c.Id = p.IdCliente
+				INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
+					ON pp.IdPedido = p.Id
+				INNER JOIN [dbo].[Produto]pd WITH(NOLOCK)
+					ON pd.Id = pp.IdProduto
 			WHERE p.DataEntrega IS NULL 
-				  OR p.DataEntrega > p.DataPromessa
+				  AND @DataAtual > p.DataPromessa
+			GROUP BY p.Id, c.Nome, p.DataPedido,
+					 p.DataPromessa, p.DataEntrega
 	END
