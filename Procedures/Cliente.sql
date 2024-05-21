@@ -49,11 +49,19 @@ AS
 										SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo
 
 								   ROLLBACK
+			Retornos.............: 0 - Cliente inserido com sucesso
+								   1 - Houve um erro ao inserir o cliente
 		*/
 	BEGIN
 		-- Inserindo um novo cliente
 		INSERT INTO [dbo].[Cliente](c.Nome)
 			VALUES (@Nome)
+
+		-- Checagem de erro
+		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+			RETURN 1
+
+		RETURN 0
 	END
 
 GO
@@ -69,21 +77,29 @@ AS
 			Data.................: 21/05/2024
 			Ex...................: BEGIN TRAN
 										
-										DECLARE @DataInicio DATETIME = GETDATE()
+										DECLARE @DataInicio DATETIME = GETDATE(),
+												@Ret INT
 
 										SELECT Id, Nome FROM [dbo].[Cliente]
 
-										EXEC [dbo].[SP_AtualizarCliente] 1, 'João'
-
-										SELECT Id, Nome FROM [dbo].[Cliente]
-
-										SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo
+										EXEC @Ret = [dbo].[SP_AtualizarCliente] 2, 'João'
+										SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo,
+											   @Ret Retorno
 
 								   ROLLBACK
+			Retornos.............: 0 - Cliente atualizado com sucesso
+								   1 - Houve um erro atualizar o cliente
 		*/
 	BEGIN
 		-- Inserindo um novo cliente
 		UPDATE [dbo].[Cliente] 
 			SET Nome = @Nome
 				WHERE Id = @IdCliente
+
+		-- Checagem de erro
+		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+			RETURN 1
+
+		RETURN 0
+
 	END
