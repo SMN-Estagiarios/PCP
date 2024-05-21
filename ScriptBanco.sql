@@ -80,6 +80,7 @@ DROP TABLE IF EXISTS [dbo].[MovimentacaoEstoqueProduto];
 CREATE TABLE [dbo].[MovimentacaoEstoqueProduto](
 													Id INT PRIMARY KEY IDENTITY,
 													IdEstoqueProduto INT NOT NULL,
+													Quantidade INT NOT NULL,
 													idTipoMovimentacao TINYINT NOT NULL
 
 													CONSTRAINT fk_MovimentacaoEstoqueProduto_EstoqueProduto1
@@ -127,6 +128,7 @@ CREATE TABLE [dbo].[MovimentacaoEstoqueMateriaPrima]	(
 															Id INT PRIMARY KEY IDENTITY,
 															idTipoMovimentacao TINYINT NOT NULL,
 															IdEstoqueMateriaPrima INT NOT NULL,
+															Quantidade INT NOT NULL,
 															DataMovimentacao DATE NOT NULL,
 															CONSTRAINT fk_MovimentacaoEstoqueMateriaPrima_EstoqueMateriaPrima1
 																FOREIGN KEY (IdEstoqueMateriaPrima)
