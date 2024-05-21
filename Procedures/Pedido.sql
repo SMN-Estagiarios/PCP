@@ -146,3 +146,36 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 
 	END
 GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
+	AS 
+	/*
+		Documentação
+		Arquivo Fonte.........:	FNC_VerificarMatPrimaProduto.sql
+		Objetivo..............:	Lista os pedidos que estão em atraso e os pedidos que foram entregues em atraso 
+		Autor.................:	Adriel Alexander de Sousa
+		Data..................:	21/05/2024
+		Ex....................:	DBCC FREEPROCCACHE
+								DBCC DROPCLEANBUFFERS
+
+								DECLARE @DataInicio DATETIME = GETDATE()
+
+								EXEC [Sp_ListarPedidosEmAtraso]
+
+								SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao
+	*/
+	BEGIN
+		--Consulta dos pedidos em atraso 
+		SELECT p.Id,
+			   c.Nome AS NomeCliente,
+			   p.DataPedido,
+			   p.DataPromessa,
+			   p.DataEntrega,
+			   CASE WHEN DataEntrega IS NULL THEN 'Em Atraso' ELSE 'Entregue Com Atraso'END AS StatusPedido
+			FROM [dbo].[Pedido] p WITH(NOLOCK)
+				INNER JOIN Cliente c
+					ON c.Id = p.IdCliente
+			WHERE p.DataEntrega IS NULL 
+				  OR p.DataEntrega > p.DataPromessa
+	END
