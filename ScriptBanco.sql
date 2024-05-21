@@ -7,8 +7,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[Cliente]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[Cliente];
-
 CREATE TABLE [dbo].[Cliente](
 								Id INT PRIMARY KEY IDENTITY,
 								Nome VARCHAR(100) NOT NULL
@@ -18,8 +16,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[Produto]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[Produto];
-
 CREATE TABLE [dbo].[Produto]	(
 									Id INT PRIMARY KEY IDENTITY,
 									Nome VARCHAR(45) NOT NULL UNIQUE
@@ -29,8 +25,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[Pedido]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[Pedido];
-
 CREATE TABLE [dbo].[Pedido]	(
 								Id INT PRIMARY KEY IDENTITY,
 								IdCliente INT NOT NULL,
@@ -47,8 +41,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[EstoqueProduto]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[EstoqueProduto];
-
 CREATE TABLE [dbo].[EstoqueProduto](
 										IdProduto INT PRIMARY KEY,
 										QuantidadeFisica INT NOT NULL,
@@ -64,8 +56,6 @@ CREATE TABLE [dbo].[EstoqueProduto](
 -- -----------------------------------------------------
 -- Tabela [dbo].[TipoMovimentacao]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[TipoMovimentacao];
-
 CREATE TABLE [dbo].[TipoMovimentacao]	(
 											Id TINYINT PRIMARY KEY,
 											Nome VARCHAR(50) NOT NULL UNIQUE
@@ -75,8 +65,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[MovimentacaoEstoqueProduto]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[MovimentacaoEstoqueProduto];
-
 CREATE TABLE [dbo].[MovimentacaoEstoqueProduto](
 													Id INT PRIMARY KEY IDENTITY,
 													IdEstoqueProduto INT NOT NULL,
@@ -94,8 +82,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[MateriaPrima]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[MateriaPrima];
-
 CREATE TABLE [dbo].[MateriaPrima]	(
 										Id INT PRIMARY KEY IDENTITY,
 										Nome VARCHAR(60) NOT NULL UNIQUE
@@ -105,8 +91,6 @@ CREATE TABLE [dbo].[MateriaPrima]	(
 -- -----------------------------------------------------
 -- Tabela [dbo].[EstoqueMateriaPrima]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[EstoqueMateriaPrima];
-
 CREATE TABLE [dbo].[EstoqueMateriaPrima]	(
 												IdMateriaPrima INT PRIMARY KEY,
 												QuantidadeFisica INT NOT NULL,
@@ -121,8 +105,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[MovimentacaoEstoqueMateriaPrima]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[MovimentacaoEstoqueMateriaPrima];
-
 CREATE TABLE [dbo].[MovimentacaoEstoqueMateriaPrima]	(
 															Id INT PRIMARY KEY IDENTITY,
 															idTipoMovimentacao TINYINT NOT NULL,
@@ -140,8 +122,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[PedidoProduto]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[PedidoProduto];
-
 CREATE TABLE [dbo].[PedidoProduto]	(
 										Id INT PRIMARY KEY  IDENTITY,
 										IdPedido INT NOT NULL,
@@ -160,8 +140,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[EtapaProducao]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[EtapaProducao];
-
 CREATE TABLE [dbo].[EtapaProducao]	(
 										Id INT PRIMARY KEY IDENTITY,
 										IdProduto INT NOT NULL,
@@ -177,8 +155,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[Composicao]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[Composicao];
-
 CREATE TABLE [dbo].[Composicao]	(
 									IdProduto INT NOT NULL,
 									IdMateriaPrima INT NOT NULL,
@@ -196,8 +172,6 @@ GO
 -- -----------------------------------------------------
 -- Tabela [dbo].[Producao]
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS [dbo].[Producao];
-
 CREATE TABLE [dbo].[Producao]	(
 									Id INT PRIMARY KEY IDENTITY,
 									IdEtapaProducao INT NOT NULL,
