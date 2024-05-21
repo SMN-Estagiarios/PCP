@@ -70,24 +70,79 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 		Exemplo..............:	DECLARE @Ret INT,
 										@DataInicio DATETIME = GETDATE()
 
-								EXEC @Ret = [dbo].[SP_ListarPedidos] @IdCliente = 1
+								EXEC @Ret = [dbo].[SP_ListarPedidos] @Id = 1, @IdCliente = 1
 
 								SELECT	@Ret AS Retorno,
 										DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 		Retornos.............:	0 - Sucesso
 	*/
 	BEGIN
-		--Listar todos os pedidos ou filtra-los através dos parâmetros
-		SELECT	Id,
-				IdCliente,
-				DataPedido,
-				DataPromessa,
-				DataEntrega
-			FROM [dbo].[Pedido] WITH(NOLOCK)
-			WHERE	Id = ISNULL(@Id, Id)
-					AND IdCliente = ISNULL(@IdCliente, IdCliente)
-					AND DataPedido = ISNULL(@DataPedido, DataPedido)
-					AND DataPromessa = ISNULL(@DataPromessa, DataPromessa)
-					AND ISNULL(DataEntrega, '1900-01-01') = COALESCE(NULL, DataEntrega, '1900-01-01')
+		--DECLARANDO VARIAVEIS
+		DECLARE @Comando NVARCHAR(MAX),
+				@Parametros NVARCHAR(1000),
+				@Where BIT
+		
+		--motando comando 
+		SET @Comando = 
+						N'
+							SELECT	Id,
+									IdCliente,
+									DataPedido,
+									DataPromessa,
+									DataEntrega
+								FROM [dbo].[Pedido] WITH(NOLOCK)
+								WHERE '
+		SET @Where = 0
+
+		IF @Id IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + N'Id = @pId'
+				SET @Where = 1 
+			END
+		IF @IdCliente IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
+									AND ' ELSE N''END)
+									    + N'IdCliente = @pIdCliente'
+				SET @Where = 1 
+			END
+
+		IF @DataPedido IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
+									AND ' ELSE N''END) 
+										+ N'DataPedido = @pDataPedido'
+				SET @Where = 1 
+			END
+		
+		IF @DataPromessa IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
+									AND ' ELSE N''END) 
+										+ N'DataPromessa = @pDataPromessa'
+				SET @Where = 1 
+			END
+		
+		IF @DataEntrega IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
+									AND ' ELSE N''END) 
+										+ N'ISNULL(DataEntrega, ''1900-01-01'') = @pDataEntrega'
+				SET @Where = 1 
+			END
+		
+		SET @Parametros = N'@pId INT, @pIdCliente INT, @pDataPedido DATE, @pDataPromessa DATE, @pDataEntrega DATE'
+			
+		PRINT @Comando
+
+		--Executando Comando  
+		EXEC sp_executesql @Comando, 
+						   @Parametros,
+						   @pId = @Id, 
+						   @pIdCliente = @IdCliente,
+						   @pDataPedido = @DataPedido,
+						   @pDataPromessa = @DataPromessa,
+						   @pDataEntrega = @DataEntrega
+
 	END
 GO
