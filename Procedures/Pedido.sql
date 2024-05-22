@@ -213,6 +213,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosEmProducao]
 			Objetivo..............: Listar pedidos que estão em produção
 			Autor.................: Gustavo Targino
 			Data..................: 22/05/2024
+			Autor Alteração.......: Adriel Alexander de Sousa
+			Data Alteração........: 22/05/2024
 			Ex....................: 
 									DECLARE @DataInicio DATETIME = GETDATE()
 									EXEC [dbo].[SP_ListarPedidosEmProducao]
@@ -225,8 +227,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosEmProducao]
 			   p.DataPedido,
 			   p.DataPromessa,
 			   p.DataEntrega
-			FROM [dbo].[Pedido] p WITH(NOLOCK)
-				WHERE p.DataEntrega IS NULL
+			FROM [dbo].[Producao] pd WITH(NOLOCK)
+				INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
+					ON pd.IdPedidoProduto = pp.Id
+				INNER JOIN [dbo].[Pedido] p WITH(NOLOCK)
+					ON p.Id = pp.IdPedido
+			WHERE pd.DataTermino IS NULL
+				  AND p.DataEntrega IS NULL
 	END
 GO
 

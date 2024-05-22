@@ -23,7 +23,7 @@ FOR INSERT
 																							DataMovimentacao,
 																							Quantidade
 																					   )
-										VALUES (1 , 1, GETDATE(), 20000 )
+										VALUES (3 , 1, GETDATE(), 20000 )
 
 									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecução
 
@@ -48,10 +48,8 @@ FOR INSERT
 		--realiza atualização do estoque físico mediante as movimentações do estoque 
 		UPDATE [dbo].[EstoqueMateriaPrima]
 			SET QuantidadeFisica = QuantidadeFisica + (CASE WHEN @IdTipoMovimentacao  = 1  
-														    THEN @QtdMovimentada 
-														    WHEN @IdTipoMovimentacao > 1 AND QuantidadeFisica - @QtdMovimentada >= QuantidadeMinima
-															THEN @QtdMovimentada * (-1)
-														    ELSE 0
+															THEN @QtdMovimentada 
+														    ELSE @QtdMovimentada * (-1)
 													    END)
 			WHERE IdMateriaPrima = @IdEstoqueMateriaPrima 
 		IF @@ERROR <> 0 
