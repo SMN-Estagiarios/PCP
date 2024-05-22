@@ -3,7 +3,7 @@ USE pcp;
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 
 	/*
-	Documentação
+	Documentaï¿½ï¿½o
 		Arquivo Fonte........:	Pedido.sql
 		Objetivo.............:	Procedure para listar todos os pedidos completos
 		Autor................:	Thays Carvalho
