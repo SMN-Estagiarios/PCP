@@ -1,11 +1,12 @@
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 	@IdCliente INT,
-	@DataPromessa DATE
+	@DataPromessa DATE,
+	@JSON NVARCHAR(MAX)
 	AS
 	/*
 		Documentação
 		Arquivo Fonte........:	Pedido.sql
-		Objetivo.............:	Procedure para inserir um novo registro de pedido
+		Objetivo.............:	Procedure para inserir um novo registro de pedido e os seus produtos
 		Autor................:	João Victor Maia
 		Data.................:	21/05/2024
 		Exemplo..............:	BEGIN TRAN
@@ -13,7 +14,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 											@DataInicio DATETIME = GETDATE(),
 											@DataPromessa DATE =  DATEADD(DAY, 10, GETDATE())
 
-									EXEC @Ret = [dbo].[SP_InserirPedido] 1, @DataPromessa
+									EXEC @Ret = [dbo].[SP_InserirPedido] 1, @DataPromessa, N'	[	{"IdProduto": 1, "Quantidade": 2},
+																									{"IdProduto": 2, "Quantidade": 5},
+																									{"IdProduto": 99, "Quantidade": 1}
+																								]
+																							'
 
 									SELECT	@Ret AS Retorno,
 											DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
@@ -23,17 +28,27 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 											DataPromessa,
 											DataEntrega
 										FROM [dbo].[Pedido] WITH(NOLOCK)
-										WHERE Id = SCOPE_IDENTITY()
+										WHERE Id = IDENT_CURRENT('Pedido')
+
+									SELECT	IdPedido,
+											IdProduto,
+											Quantidade
+										FROM [dbo].[PedidoProduto]
+										WHERE IdPedido = IDENT_CURRENT('Pedido')
 								ROLLBACK TRAN
 		Retornos.............:	0 - Sucesso
-								1 - Erro: Id do cliente não existe
-								2 - Erro: A data da promessa é inferior à hoje
+								1 - Erro: o cliente não existe
+								2 - Erro: a data da promessa é menor que a data atual
+								3 - Erro: um Id de produto inexistente foi passado
 	*/
 	BEGIN
 		--Declarar variáveis
-		DECLARE @DataAtual DATE = GETDATE()
+		DECLARE @IdProduto INT,
+				@Quantidade SMALLINT,
+				@IdPedido INT,
+				@DataAtual DATE = GETDATE()
 
-		--Checar se o Id do cliente existe
+		--Checar se o cliente existe
 		IF NOT EXISTS	(SELECT TOP 1 1
 							FROM [dbo].[Cliente] WITH(NOLOCK)
 							WHERE Id = @IdCliente
@@ -48,9 +63,69 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 				RETURN 2
 			END
 
-		--Inserir um pedido
-		INSERT INTO [dbo].[Pedido]	(IdCliente, DataPedido, DataPromessa, DataEntrega) VALUES
-									(@IdCliente, @DataAtual, @DataPromessa, NULL)
+		--Criar tabela temporária
+		CREATE TABLE #ProdutoDoPedido	(
+											IdProduto INT,
+											Quantidade SMALLINT
+										)
+
+		--Declarar cursor
+		DECLARE Produtos CURSOR FOR
+			SELECT IdProduto, Quantidade
+			FROM OPENJSON(@JSON)
+			WITH(
+				IdProduto INT '$.IdProduto',
+				Quantidade SMALLINT '$.Quantidade'
+				)
+
+	-- Abrir o cursor
+	OPEN Produtos
+
+	-- Loop para inserir linha por linha do JSON na tabela temporária
+	FETCH NEXT FROM Produtos INTO @IdProduto, @Quantidade
+	WHILE @@FETCH_STATUS = 0
+		BEGIN
+
+			-- Inserir na tabela temporária
+			INSERT INTO #ProdutoDoPedido (IdProduto, Quantidade)
+			VALUES (@IdProduto, @Quantidade)
+
+			-- Obter o próximo registro
+			FETCH NEXT FROM produtos INTO @IdProduto, @Quantidade
+		END
+
+	-- Fechar e desalocar o cursor
+	CLOSE Produtos
+	DEALLOCATE Produtos
+
+	--Checar se algum Id do produto não existe
+	IF EXISTS	(SELECT TOP 1 1
+						FROM [dbo].[Produto] p WITH(NOLOCK)
+							RIGHT JOIN #ProdutoDoPedido pdp
+								ON pdp.IdProduto = p.Id
+						WHERE p.Id IS NULL
+				)
+		BEGIN
+			RETURN 3
+		END
+
+	--Inserir novo pedido
+	INSERT INTO [dbo].[Pedido]	(IdCliente, DataPedido, DataPromessa, DataEntrega) VALUES
+								(@IdCliente, @DataAtual, @DataPromessa, NULL)
+	
+	--Atribuir valor à IdPedido
+	SET @IdPedido = SCOPE_IDENTITY()
+
+	--Inserir a lista dos produtos do pedido
+	INSERT INTO [dbo].[PedidoProduto](IdPedido, IdProduto, Quantidade)
+		SELECT	@IdPedido,
+				IdProduto,
+				Quantidade
+			FROM #ProdutoDoPedido
+
+	--Dropar tabela temporária
+	DROP TABLE #ProdutoDoPedido
+
 	END
 GO
 
