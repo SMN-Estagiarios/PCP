@@ -196,46 +196,46 @@ VALUES
 GO 
 
 -- Primeiro Pedido do cliente João Silva - Caixa de papelão laminado super resistente
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade)
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade)
 VALUES 
-												(1, 2, '2024-01-30', 50); -- Saída de produto
+												(1, 2, '30/01/2024', 50); -- Saída de produto
 
 -- Primeiro Pedido do cliente Maria Eduarda - Sacola de papel kraft reciclado
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade) 
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade) 
 VALUES 
-												(2, 2, '2024-02-28', 100); -- Saída de produto
+												(2, 2, '28/02/2024', 100); -- Saída de produto
 
 -- Primeiro Pedido do cliente Carlos Souza - Embalagem plástica para alimentos
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade) 
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade) 
 VALUES 
-												(3, 2, '2024-01-30', 200); -- Saída de produto
+												(3, 2, '30/01/2024', 200); -- Saída de produto
 
 -- Segundo Pedido do cliente João Silva - Pote de vidro para conservas
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade)
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade)
 VALUES 
-												(4, 2, '2024-04-20', 150); -- Saída de produto
+												(4, 2, '20/04/2024', 150); -- Saída de produto
 
 -- Segundo Pedido do cliente Maria Eduarda - Envelope de papel para correspondência
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade)
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade)
 VALUES
-												(5, 2, '2024-03-27', 300); -- Saída de produto
+												(5, 2, '27/03/2024', 300); -- Saída de produto
 
 -- Segundo Pedido do cliente Carlos Souza - Garrafa PET para bebidas
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade) 
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade) 
 VALUES 
-												(6, 2, '2024-03-27', 400); -- Saída de produto
+												(6, 2, '27/03-2024', 400); -- Saída de produto
 
 -- Terceiro Pedido do cliente João Silva - Caixa de papelão laminado super resistente
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade)
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade)
 VALUES 
-												(1, 2, '2024-05-30', 75); -- Saída de produto
+												(1, 2, '30/05/2024', 75); -- Saída de produto
 
 -- Terceiro Pedido do cliente Maria Eduarda - Sacola de papel kraft reciclado
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade) 
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade) 
 VALUES 
-												(2, 2, '2024-05-27', 120); -- Saída de produto
+												(2, 2, '27/05/2024', 120); -- Saída de produto
 
 -- Terceiro Pedido do cliente Carlos Souza - Embalagem plástica para alimentos
-INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade) 
+INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(IdEstoqueProduto, IdTipoMovimentacao, DataMovimentacao, Quantidade) 
 VALUES 
-												(3, 2, '2024-05-30', 250); -- Saída de produto
+												(3, 2, '30/05/2024', 250); -- Saída de produto
