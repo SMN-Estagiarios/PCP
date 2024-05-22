@@ -70,21 +70,24 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 		Exemplo..............:	DECLARE @Ret INT,
 										@DataInicio DATETIME = GETDATE()
 
-								EXEC @Ret = [dbo].[SP_ListarPedidos] @Id = 1, @IdCliente = 1
+								EXEC @Ret = [dbo].[SP_ListarPedidos] @IdCliente = 1, @Id = 1
 
 								SELECT	@Ret AS Retorno,
 										DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
+		Autor Alteração......:	João Victor Maia
+		Data Alteração.......:	22/05/2024
+		Objetivo Alteração...:	Validação de parâmetros e indentação do código
 		Retornos.............:	0 - Sucesso
+								1 - Erro: Nenhum parâmetro foi passado
 	*/
 	BEGIN
-		--DECLARANDO VARIAVEIS
+		--Declarar variáveis
 		DECLARE @Comando NVARCHAR(MAX),
 				@Parametros NVARCHAR(1000),
 				@Where BIT
 		
-		--motando comando 
-		SET @Comando = 
-						N'
+		--Montar comando
+		SET @Comando = N'
 							SELECT	Id,
 									IdCliente,
 									DataPedido,
@@ -94,48 +97,59 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 								WHERE '
 		SET @Where = 0
 
+		--Montar cláusula WHERE
 		IF @Id IS NOT NULL 
 			BEGIN
 				SET @Comando = @Comando + N'Id = @pId'
 				SET @Where = 1 
 			END
+
 		IF @IdCliente IS NOT NULL 
 			BEGIN
-				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
-									AND ' ELSE N''END)
-									    + N'IdCliente = @pIdCliente'
+				SET @Comando = @Comando +	(CASE WHEN @Where = 1 THEN N'
+												AND ' ELSE N''END
+											)
+											+ N'IdCliente = @pIdCliente'
 				SET @Where = 1 
 			END
 
 		IF @DataPedido IS NOT NULL 
 			BEGIN
-				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
-									AND ' ELSE N''END) 
-										+ N'DataPedido = @pDataPedido'
+				SET @Comando = @Comando +	(CASE WHEN @Where = 1 THEN N'
+												AND ' ELSE N''END
+											) 
+											+ N'DataPedido = @pDataPedido'
 				SET @Where = 1 
 			END
 		
 		IF @DataPromessa IS NOT NULL 
 			BEGIN
-				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
-									AND ' ELSE N''END) 
-										+ N'DataPromessa = @pDataPromessa'
+				SET @Comando = @Comando +	(CASE WHEN @Where = 1 THEN N'
+												AND ' ELSE N''END
+											) 
+											+ N'DataPromessa = @pDataPromessa'
 				SET @Where = 1 
 			END
 		
 		IF @DataEntrega IS NOT NULL 
 			BEGIN
-				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
-									AND ' ELSE N''END) 
-										+ N'ISNULL(DataEntrega, ''1900-01-01'') = @pDataEntrega'
+				SET @Comando = @Comando +	(CASE WHEN @Where = 1 THEN N'
+												AND ' ELSE N''END
+											) 
+											+ N'ISNULL(DataEntrega, ''1900-01-01'') = @pDataEntrega'
 				SET @Where = 1 
 			END
 		
+		--Criar parâmetros da execução do comando
 		SET @Parametros = N'@pId INT, @pIdCliente INT, @pDataPedido DATE, @pDataPromessa DATE, @pDataEntrega DATE'
 			
-		PRINT @Comando
+		--Checar se não há parâmetros
+		IF RIGHT(@Comando, 1) = ' ' 
+			BEGIN
+				RETURN 1
+			END
 
-		--Executando Comando  
+		--Executar Comando  
 		EXEC sp_executesql @Comando, 
 						   @Parametros,
 						   @pId = @Id, 
@@ -146,7 +160,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 
 	END
 GO
-
 
 CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 	AS 
@@ -190,3 +203,4 @@ CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 			GROUP BY p.Id, c.Nome, p.DataPedido,
 					 p.DataPromessa, p.DataEntrega
 	END
+GO
