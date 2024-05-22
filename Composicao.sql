@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE [dbo].[SP_InserirComposicao]
+CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaComposicao]
 	@IdProduto INT,
 	@IdMateriaPrima INT,
 	@Quantidade INT
@@ -21,7 +21,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirComposicao]
 											Quantidade
 										FROM [dbo].[Composicao]
 
-									EXEC @Retorno = [dbo].[SP_InserirComposicao] 1, 1, 20
+									EXEC @Retorno = [dbo].[SP_InserirNovaComposicao] 2, 12, 10
 
 									SELECT	@Retorno AS Retorno,
 											DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
@@ -42,28 +42,28 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirComposicao]
 	BEGIN
 		-- Verificar se produto existe
 		IF NOT EXISTS	(
-							SELECT @IdProduto
-								FROM [dbo].[Produto] p WITH (NOLOCK)
-								WHERE @IdProduto = p.Id
-						)
+						SELECT TOP 1 1
+							FROM [dbo].[Produto] p WITH (NOLOCK)
+							WHERE p.Id = @IdProduto
+					)
 			RETURN 3
 
 		-- Verificar se materia-prima existe
 		IF NOT EXISTS	(
-							SELECT @IdMateriaPrima
-								FROM [dbo].[MateriaPrima] mp WITH (NOLOCK)
-								WHERE @IdMateriaPrima  = mp.Id
-						)
+						SELECT TOP 1 1
+							FROM [dbo].[MateriaPrima] mp WITH (NOLOCK)
+							WHERE mp.Id = @IdMateriaPrima
+					)
 			RETURN 2
 			
-		-- Inserir a Composicao do produto
+		-- Inserir uma nova Composicao do produto
 		INSERT INTO [dbo].[Composicao] (IdProduto, IdMateriaPrima, Quantidade)
 			VALUES	(@IdProduto, @IdMateriaPrima, @Quantidade)
 		
-		IF @@ROWCOUNT <> 0
-			RETURN 1
+		IF @@ROWCOUNT = 1
+			RETURN 0
 		ELSE
-			RETURN 0;
+			RETURN 1;
 
 	END
 GO
@@ -86,20 +86,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarComposicao]
 									DECLARE	@Retorno INT,
 											@DataInicio DATETIME = GETDATE()
 									
-									SELECT	IdProduto,
-											IdMateriaPrima,
-											Quantidade
-										FROM [dbo].[Composicao]
-
-									EXEC @Retorno = [dbo].[SP_ListarComposicao] 
+									EXEC @Retorno = [dbo].[SP_ListarComposicao] 1
 									
 									SELECT	@Retorno AS Retorno,
 											DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
-
-									SELECT	IdProduto,
-											IdMateriaPrima,
-											Quantidade
-										FROM [dbo].[Composicao]
 
 								ROLLBACK TRAN
 	
@@ -110,7 +100,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarComposicao]
 	*/
 	BEGIN
 		-- Declarando variavel
-		DECLARE @IdMateriaPrima INT
+		DECLARE @IdMateriaPrima INT = NULL
 
 		-- Verificar se produto existe
 		IF NOT EXISTS	(
@@ -121,7 +111,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarComposicao]
 			RETURN 2
 
 		-- Verificar se materia-prima existe
-		IF NOT EXISTS	(
+		IF EXISTS	(
 							SELECT @IdMateriaPrima
 								FROM [dbo].[MateriaPrima] mp WITH (NOLOCK)
 								WHERE @IdMateriaPrima = mp.Id
