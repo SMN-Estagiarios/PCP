@@ -54,6 +54,6 @@ FOR INSERT
 			WHERE IdMateriaPrima = @IdEstoqueMateriaPrima 
 		IF @@ERROR <> 0 
 			BEGIN
-				RAISERROR('Não foi possivel atualizar o estoque do produto', 16,1);
+				RAISERROR('Não foi possivel atualizar o estoque da materia prima', 16,1);
 			END
 	END
