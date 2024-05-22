@@ -70,24 +70,123 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 		Exemplo..............:	DECLARE @Ret INT,
 										@DataInicio DATETIME = GETDATE()
 
-								EXEC @Ret = [dbo].[SP_ListarPedidos] @IdCliente = 1
+								EXEC @Ret = [dbo].[SP_ListarPedidos] @Id = 1, @IdCliente = 1
 
 								SELECT	@Ret AS Retorno,
 										DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 		Retornos.............:	0 - Sucesso
 	*/
 	BEGIN
-		--Listar todos os pedidos ou filtra-los através dos parâmetros
-		SELECT	Id,
-				IdCliente,
-				DataPedido,
-				DataPromessa,
-				DataEntrega
-			FROM [dbo].[Pedido] WITH(NOLOCK)
-			WHERE	Id = ISNULL(@Id, Id)
-					AND IdCliente = ISNULL(@IdCliente, IdCliente)
-					AND DataPedido = ISNULL(@DataPedido, DataPedido)
-					AND DataPromessa = ISNULL(@DataPromessa, DataPromessa)
-					AND ISNULL(DataEntrega, '1900-01-01') = COALESCE(NULL, DataEntrega, '1900-01-01')
+		--DECLARANDO VARIAVEIS
+		DECLARE @Comando NVARCHAR(MAX),
+				@Parametros NVARCHAR(1000),
+				@Where BIT
+		
+		--motando comando 
+		SET @Comando = 
+						N'
+							SELECT	Id,
+									IdCliente,
+									DataPedido,
+									DataPromessa,
+									DataEntrega
+								FROM [dbo].[Pedido] WITH(NOLOCK)
+								WHERE '
+		SET @Where = 0
+
+		IF @Id IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + N'Id = @pId'
+				SET @Where = 1 
+			END
+		IF @IdCliente IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
+									AND ' ELSE N''END)
+									    + N'IdCliente = @pIdCliente'
+				SET @Where = 1 
+			END
+
+		IF @DataPedido IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
+									AND ' ELSE N''END) 
+										+ N'DataPedido = @pDataPedido'
+				SET @Where = 1 
+			END
+		
+		IF @DataPromessa IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
+									AND ' ELSE N''END) 
+										+ N'DataPromessa = @pDataPromessa'
+				SET @Where = 1 
+			END
+		
+		IF @DataEntrega IS NOT NULL 
+			BEGIN
+				SET @Comando = @Comando + (CASE WHEN @Where = 1 THEN N'
+									AND ' ELSE N''END) 
+										+ N'ISNULL(DataEntrega, ''1900-01-01'') = @pDataEntrega'
+				SET @Where = 1 
+			END
+		
+		SET @Parametros = N'@pId INT, @pIdCliente INT, @pDataPedido DATE, @pDataPromessa DATE, @pDataEntrega DATE'
+			
+		PRINT @Comando
+
+		--Executando Comando  
+		EXEC sp_executesql @Comando, 
+						   @Parametros,
+						   @pId = @Id, 
+						   @pIdCliente = @IdCliente,
+						   @pDataPedido = @DataPedido,
+						   @pDataPromessa = @DataPromessa,
+						   @pDataEntrega = @DataEntrega
+
 	END
 GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
+	AS 
+	/*
+		Documentação
+		Arquivo Fonte.........:	FNC_VerificarMatPrimaProduto.sql
+		Objetivo..............:	Lista os pedidos que estão em atraso e os pedidos que foram entregues em atraso 
+		Autor.................:	Adriel Alexander de Sousa
+		Data..................:	21/05/2024
+		Ex....................:	DBCC FREEPROCCACHE
+								DBCC DROPCLEANBUFFERS
+
+								DECLARE @DataInicio DATETIME = GETDATE()
+
+								EXEC [Sp_ListarPedidosEmAtraso]
+
+								SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao
+	*/
+	BEGIN
+		--Declaracao de variáveis 
+		DECLARE @DataAtual DATE = GETDATE();
+
+
+		--Consulta dos pedidos em atraso 
+		SELECT p.Id,
+			   c.Nome AS NomeCliente,
+			   p.DataPedido,
+			   p.DataPromessa,
+			   p.DataEntrega,
+			   STRING_AGG(pd.Nome + ', Qtd: ' 
+								  + CAST(pp.Quantidade AS NVARCHAR), '/ ') AS DetalhesPedido
+			FROM [dbo].[Pedido] p WITH(NOLOCK)
+				INNER JOIN [dbo].[Cliente] c WITH(NOLOCK)
+					ON c.Id = p.IdCliente
+				INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
+					ON pp.IdPedido = p.Id
+				INNER JOIN [dbo].[Produto]pd WITH(NOLOCK)
+					ON pd.Id = pp.IdProduto
+			WHERE p.DataEntrega IS NULL 
+				  AND @DataAtual > p.DataPromessa
+			GROUP BY p.Id, c.Nome, p.DataPedido,
+					 p.DataPromessa, p.DataEntrega
+	END
