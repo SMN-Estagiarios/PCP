@@ -3,10 +3,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 	@DataPromessa DATE
 	AS
 	/*
-		DocumentaÁ„o
+		Documenta√ß√£o
 		Arquivo Fonte........:	Pedido.sql
 		Objetivo.............:	Procedure para inserir um novo registro de pedido
-		Autor................:	Jo„o Victor Maia
+		Autor................:	Jo√£o Victor Maia
 		Data.................:	21/05/2024
 		Exemplo..............:	BEGIN TRAN
 									DECLARE @Ret INT,
@@ -26,11 +26,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 										WHERE Id = SCOPE_IDENTITY()
 								ROLLBACK TRAN
 		Retornos.............:	0 - Sucesso
-								1 - Erro: Id do cliente n„o existe
-								2 - Erro: A data da promessa È inferior ‡ hoje
+								1 - Erro: Id do cliente n√£o existe
+								2 - Erro: A data da promessa √© inferior √† hoje
 	*/
 	BEGIN
-		--Declarar vari·veis
+		--Declarar vari√°veis
 		DECLARE @DataAtual DATE = GETDATE()
 
 		--Checar se o Id do cliente existe
@@ -42,7 +42,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 				RETURN 1
 			END
 
-		--Checar se a data da promessa È maior que hoje
+		--Checar se a data da promessa √© maior que hoje
 		IF @DataPromessa < @DataAtual
 			BEGIN
 				RETURN 2
@@ -62,10 +62,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 	@DataEntrega DATE = NULL
 	AS
 	/*
-		DocumentaÁ„o
+		Documenta√ß√£o
 		Arquivo Fonte........:	Pedido.sql
 		Objetivo.............:	Procedure para listar todos os pedidos registrados ou todos os pedidos filtrados por um ou mais campos
-		Autor................:	Jo„o Victor Maia
+		Autor................:	Jo√£o Victor Maia
 		Data.................:	21/05/2024
 		Exemplo..............:	DECLARE @Ret INT,
 										@DataInicio DATETIME = GETDATE()
@@ -74,14 +74,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 
 								SELECT	@Ret AS Retorno,
 										DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
-		Autor AlteraÁ„o......:	Jo„o Victor Maia
-		Data AlteraÁ„o.......:	22/05/2024
-		Objetivo AlteraÁ„o...:	ValidaÁ„o de par‚metros e indentaÁ„o do cÛdigo
+		Autor Altera√ß√£o......:	Jo√£o Victor Maia
+		Data Altera√ß√£o.......:	22/05/2024
+		Objetivo Altera√ß√£o...:	Valida√ß√£o de par√¢metros e indenta√ß√£o do c√≥digo
 		Retornos.............:	0 - Sucesso
-								1 - Erro: Nenhum par‚metro foi passado
+								1 - Erro: Nenhum par√¢metro foi passado
 	*/
 	BEGIN
-		--Declarar vari·veis
+		--Declarar vari√°veis
 		DECLARE @Comando NVARCHAR(MAX),
 				@Parametros NVARCHAR(1000),
 				@Where BIT
@@ -97,7 +97,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 								WHERE '
 		SET @Where = 0
 
-		--Montar cl·usula WHERE
+		--Montar cl√°usula WHERE
 		IF @Id IS NOT NULL 
 			BEGIN
 				SET @Comando = @Comando + N'Id = @pId'
@@ -140,10 +140,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 				SET @Where = 1 
 			END
 		
-		--Criar par‚metros da execuÁ„o do comando
+		--Criar par√¢metros da execu√ß√£o do comando
 		SET @Parametros = N'@pId INT, @pIdCliente INT, @pDataPedido DATE, @pDataPromessa DATE, @pDataEntrega DATE'
 			
-		--Checar se n„o h· par‚metros
+		--Checar se n√£o h√° par√¢metros
 		IF RIGHT(@Comando, 1) = ' ' 
 			BEGIN
 				RETURN 1
@@ -164,9 +164,9 @@ GO
 CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 	AS 
 	/*
-		DocumentaÁ„o
+		Documenta√ß√£o
 		Arquivo Fonte.........:	FNC_VerificarMatPrimaProduto.sql
-		Objetivo..............:	Lista os pedidos que est„o em atraso e os pedidos que foram entregues em atraso 
+		Objetivo..............:	Lista os pedidos que est√£o em atraso e os pedidos que foram entregues em atraso 
 		Autor.................:	Adriel Alexander de Sousa
 		Data..................:	21/05/2024
 		Ex....................:	DBCC FREEPROCCACHE
@@ -179,7 +179,7 @@ CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 								SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao
 	*/
 	BEGIN
-		--Declaracao de vari·veis 
+		--Declaracao de vari√°veis 
 		DECLARE @DataAtual DATE = GETDATE();
 
 
@@ -202,5 +202,30 @@ CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 				  AND @DataAtual > p.DataPromessa
 			GROUP BY p.Id, c.Nome, p.DataPedido,
 					 p.DataPromessa, p.DataEntrega
+	END
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosEmProducao]
+	AS
+		/*
+			Documenta√ß√£o
+			Arquivo fonte.........: Pedido.sql
+			Objetivo..............: Listar pedidos que est√£o em produ√ß√£o
+			Autor.................: Gustavo Targino
+			Data..................: 22/05/2024
+			Ex....................: 
+									DECLARE @DataInicio DATETIME = GETDATE()
+									EXEC [dbo].[SP_ListarPedidosEmProducao]
+									SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo
+		*/
+	BEGIN
+		-- Selecionando os pedidos em produ√ß√£o
+		SELECT p.Id,
+			   p.IdCliente,
+			   p.DataPedido,
+			   p.DataPromessa,
+			   p.DataEntrega
+			FROM [dbo].[Pedido] p WITH(NOLOCK)
+				WHERE p.DataEntrega IS NULL
 	END
 GO
