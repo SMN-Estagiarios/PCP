@@ -22,18 +22,18 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueVirtual]	(
 	*/
 	BEGIN
 
-		-- Declarando variaveis necessarias para a solucao
+		-- Declarando variáveis necessarias para a solucao
 		DECLARE @EstoqueVirtual INT;
 		
 		-- Calcular a quantidade de produto que ainda esta sendo produzida
 		WITH EtapaMaxima AS (
-			-- Capturar o valor maximo do numero de etapa para o produto passado como parametro
+			-- Capturar o valor máximo do número de etapa para o produto passado como parãmetro
 			SELECT	IdProduto,
 					MAX(NumeroEtapa) AS EtapaFinal
 				FROM [dbo].[EtapaProducao] WITH(NOLOCK)
 				GROUP BY IdProduto
 		), ProducaoFinalizada AS (
-			-- Capturar os ids de producoes finalizadas
+			-- Capturar os Ids de producoes finalizadas
 			SELECT p.IdPedidoProduto
 				FROM [dbo].[Producao] p WITH(NOLOCK)
 					INNER JOIN [dbo].[EtapaProducao] ep WITH(NOLOCK)
@@ -42,7 +42,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueVirtual]	(
 						ON ep.IdProduto = em.IdProduto
 				WHERE ep.NumeroEtapa = em.EtapaFinal AND p.DataTermino IS NOT NULL
 		)	
-			-- Calcular a quantidade que esta sendo produzida e atribuir o valor a variavel declarada
+			-- Calcular a quantidade que está sendo produzida e atribuir o valor a variavel declarada
 			SELECT	@EstoqueVirtual = ISNULL(SUM(DISTINCT Quantidade), 0)
 				FROM [dbo].[Producao] WITH(NOLOCK)
 				WHERE IdPedidoProduto NOT IN	(
@@ -50,6 +50,6 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueVirtual]	(
 														FROM ProducaoFinalizada
 												)
 
-		-- Retornar o valor da variavel
+		-- Retornar o valor da variável
 		RETURN @EstoqueVirtual;
 	END
