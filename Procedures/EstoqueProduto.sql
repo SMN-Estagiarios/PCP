@@ -1,9 +1,7 @@
 CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarEstoqueProduto]
 	@IdProduto INT,
 	@QuantidadeFisica INT, 
-	@QuantidadeMinima INT, 
-	@QuantidadeVirtual INT
-
+	@QuantidadeMinima INT
 AS
 	/*
 		Documentacao
@@ -22,7 +20,7 @@ AS
 								DECLARE @Data_Inicio DATETIME = GETDATE(),
 										@Retorno INT;
 
-								EXEC @Retorno = [dbo].[SP_AtualizarEstoqueProduto] 2, 200, 250, 50
+								EXEC @Retorno = [dbo].[SP_AtualizarEstoqueProduto] 2, 200, 250
 									
 								SELECT	@Retorno AS Retorno,
 										DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo;
@@ -35,6 +33,7 @@ AS
 
 	BEGIN
 		UPDATE [dbo].[EstoqueProduto]
-			SET QuantidadeFisica = @QuantidadeFisica, QuantidadeMinima = @QuantidadeMinima, QuantidadeVirtual = @QuantidadeVirtual
-				WHERE IdProduto = @IdProduto
+			SET QuantidadeFisica = ISNULL(@QuantidadeFisica, QuantidadeFisica),
+				QuantidadeMinima = ISNULL(@QuantidadeMinima, QuantidadeMinima)
+			WHERE IdProduto = @IdProduto;
 	END

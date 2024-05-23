@@ -13,31 +13,28 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 									DBCC FREEPROCCACHE
 									DBCC DROPCLEANBUFFERS
 
-									DECLARE @Ret INT,
+									DECLARE @Retorno INT,
 											@DataInicio DATETIME = GETDATE(),
 											@DataPromessa DATE =  DATEADD(DAY, 10, GETDATE())
 
-									EXEC @Ret = [dbo].[SP_InserirPedido] 1, @DataPromessa, N'	[	{"IdProduto": 1, "Quantidade": 2},
+									EXEC @Retorno = [dbo].[SP_InserirPedido] 1, @DataPromessa, N'	[	
+																									{"IdProduto": 1, "Quantidade": 2},
 																									{"IdProduto": 2, "Quantidade": 5}
 																								]
 																							'
 
-									SELECT	@Ret AS Retorno,
+									SELECT	@Retorno AS Retorno,
 											DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 
-									SELECT	IdCliente,
-											DataPedido,
-											DataPromessa,
-											DataEntrega
+									SELECT	*
 										FROM [dbo].[Pedido] WITH(NOLOCK)
 										WHERE Id = IDENT_CURRENT('Pedido')
 
-									SELECT	IdPedido,
-											IdProduto,
-											Quantidade
-										FROM [dbo].[PedidoProduto]
+									SELECT	*
+										FROM [dbo].[PedidoProduto] WITH(NOLOCK)
 										WHERE IdPedido = IDENT_CURRENT('Pedido')
 								ROLLBACK TRAN
+
 		Retornos.............:	0 - Sucesso
 								1 - Erro: o cliente não existe
 								2 - Erro: a data da promessa é menor que a data atual
@@ -81,7 +78,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 					)
 
 	--Checar se algum Id do produto passado não existe
-	IF EXISTS	(SELECT TOP 1 1
+	IF EXISTS	(
+					SELECT TOP 1 1
 						FROM [dbo].[Produto] p WITH(NOLOCK)
 							RIGHT JOIN #ProdutoDoPedido pdp
 								ON pdp.IdProduto = p.Id
@@ -92,8 +90,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 		END
 
 	--Inserir novo pedido
-	INSERT INTO [dbo].[Pedido]	(IdCliente, DataPedido, DataPromessa, DataEntrega) VALUES
-								(@IdCliente, @DataAtual, @DataPromessa, NULL)
+	INSERT INTO [dbo].[Pedido]	(IdCliente, DataPedido, DataPromessa, DataEntrega)
+		VALUES					(@IdCliente, @DataAtual, @DataPromessa, NULL)
 	
 	--Atribuir valor à IdPedido
 	SET @IdPedido = SCOPE_IDENTITY()
@@ -107,7 +105,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 
 	--Dropar tabela temporária
 	DROP TABLE #ProdutoDoPedido
-
 	END
 GO
 
@@ -124,21 +121,22 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 		Objetivo.............:	Procedure para listar todos os pedidos registrados ou todos os pedidos filtrados por um ou mais campos
 		Autor................:	João Victor Maia
 		Data.................:	21/05/2024
-		Exemplo..............:	DBCC FREEPROCCACHE
-								DBCC DROPCLEANBUFFERS
-
-								DECLARE @Ret INT,
-										@DataInicio DATETIME = GETDATE()
-
-								EXEC @Ret = [dbo].[SP_ListarPedidos] @IdCliente = 1, @Id = 1
-
-								SELECT	@Ret AS Retorno,
-										DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 		Autor Alteração......:	João Victor Maia
 		Data Alteração.......:	22/05/2024
 		Objetivo Alteração...:	Validação de parâmetros e indentação do código
-		Retornos.............:	0 - Sucesso
-								1 - Erro: Nenhum parâmetro foi passado
+		Exemplo..............:	DBCC FREEPROCCACHE
+								DBCC DROPCLEANBUFFERS
+
+								DECLARE @Retorno INT,
+										@DataInicio DATETIME = GETDATE()
+
+								EXEC @Retorno = [dbo].[SP_ListarPedidos] @IdCliente = 1, @Id = 1;
+
+								SELECT	@Retorno AS Retorno,
+										DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+		
+		Retornos.............:	0 - Sucesso.
+								1 - Erro: Nenhum parâmetro foi passado.
 	*/
 	BEGIN
 		--Declarar variáveis
@@ -261,7 +259,7 @@ CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 			WHERE p.DataEntrega IS NULL 
 				  AND @DataAtual > p.DataPromessa
 			GROUP BY p.Id, c.Nome, p.DataPedido,
-					 p.DataPromessa, p.DataEntrega
+					 p.DataPromessa, p.DataEntrega;
 	END
 GO
 
@@ -290,6 +288,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosEmProducao]
 			   p.DataPromessa,
 			   p.DataEntrega
 			FROM [dbo].[Pedido] p WITH(NOLOCK)
-				WHERE p.DataEntrega IS NULL
+				WHERE p.DataEntrega IS NULL;
 	END
 GO
