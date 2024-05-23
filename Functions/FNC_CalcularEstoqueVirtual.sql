@@ -18,7 +18,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueVirtual]	(
 
 							SELECT [dbo].[FNC_CalcularEstoqueVirtual](1) AS EstoqueVirtual;
 
-							SELECT DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo;
+							SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
 	*/
 	BEGIN
 

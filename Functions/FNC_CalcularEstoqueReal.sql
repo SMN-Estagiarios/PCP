@@ -16,19 +16,19 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueReal]	(
 
 						DECLARE @DataInicio DATETIME = GETDATE();
 
-						SELECT [dbo].[FNC_CalcularEstoqueReal](1);
+						SELECT [dbo].[FNC_CalcularEstoqueReal](1) AS EstoqueReal;
 
-						SELECT DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS TempoExecucao;
+						SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao;
 	*/
 	BEGIN
 
-		-- Declarando variaveis necessarias para a solucao
+		-- Declarando variáveis necessarias para a solução
 		DECLARE @EstoqueFisico INT,
 				@EstoqueVirtual INT,
 				@EstoqueComprometido INT,
 				@Resultado INT;
 
-		-- Capturar a somatoria da quantidade do produto em pedidos que ainda estao em aberto
+		-- Capturar a somatória da quantidade do produto em pedidos que ainda estao em aberto
 		SELECT	@EstoqueComprometido = ISNULL(SUM(pp.Quantidade), 0)
 			FROM [dbo].[PedidoProduto] AS pp WITH(NOLOCK)
 				INNER JOIN [dbo].[Pedido] AS p WITH(NOLOCK)
@@ -36,10 +36,10 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueReal]	(
 			WHERE pp.IdProduto = @IdProduto
 				AND p.DataEntrega IS NULL;
 
-		-- Capturar a somatoria da quantidade do produto que estao em producao
+		-- Capturar a somatória da quantidade do produto que estao em producao
 		SELECT @EstoqueVirtual = [dbo].[FNC_CalcularEstoqueVirtual](@IdProduto);
 
-		-- Capturar a somatoria da quantidade do produto que estao prontos
+		-- Capturar a somatória da quantidade do produto que estao prontos
 		SELECT	@EstoqueFisico = ISNULL(QuantidadeFisica, 0)
 			FROM [dbo].[EstoqueProduto] WITH(NOLOCK)
 			WHERE IdProduto = @IdProduto;
