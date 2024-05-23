@@ -12,5 +12,10 @@ DROP TABLE [dbo].[TipoMovimentacao]
 DROP TABLE [dbo].[EstoqueProduto]
 DROP TABLE [dbo].[Pedido]
 DROP TABLE [dbo].[Produto]
+DROP TABLE [dbo].[Cliente]
 
 -- Drop de procedures
+
+DROP PROCEDURE [dbo].[dbo].[SP_InserirPedido]
+DROP PROCEDURE [dbo].[SP_ListarPedidos]
+DROP PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
