@@ -10,6 +10,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 		Autor................:	João Victor Maia
 		Data.................:	21/05/2024
 		Exemplo..............:	BEGIN TRAN
+									DBCC FREEPROCCACHE
+									DBCC DROPCLEANBUFFERS
+
 									DECLARE @Ret INT,
 											@DataInicio DATETIME = GETDATE(),
 											@DataPromessa DATE =  DATEADD(DAY, 10, GETDATE())
@@ -121,7 +124,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 		Objetivo.............:	Procedure para listar todos os pedidos registrados ou todos os pedidos filtrados por um ou mais campos
 		Autor................:	João Victor Maia
 		Data.................:	21/05/2024
-		Exemplo..............:	DECLARE @Ret INT,
+		Exemplo..............:	DBCC FREEPROCCACHE
+								DBCC DROPCLEANBUFFERS
+
+								DECLARE @Ret INT,
 										@DataInicio DATETIME = GETDATE()
 
 								EXEC @Ret = [dbo].[SP_ListarPedidos] @IdCliente = 1, @Id = 1
@@ -267,9 +273,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosEmProducao]
 			Objetivo..............: Listar pedidos que estão em produção
 			Autor.................: Gustavo Targino
 			Data..................: 22/05/2024
-			Ex....................: 
+			Ex....................: DBCC FREEPROCCACHE
+									DBCC DROPCLEANBUFFERS
+
 									DECLARE @DataInicio DATETIME = GETDATE()
+
 									EXEC [dbo].[SP_ListarPedidosEmProducao]
+
 									SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo
 		*/
 	BEGIN
