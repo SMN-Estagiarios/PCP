@@ -7,7 +7,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueProduto]
 	/*
 	Documentacao
 	Arquivo Fonte.....: MovimentacaoEstoqueProduto.sql
-	Objetivo..........: Gerar um insert para a tabela de movimentacao no estoque da materia prima.
+	Objetivo..........: Gerar um insert para a tabela de movimentacao de estoque do produto.
 	Autor.............: Olivio Freitas
 	Data..............: 23/05/2024
 	Ex................: BEGIN TRAN
@@ -90,7 +90,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarMovimentacaoEstoqueProduto]
 	/*
 	Documentacao
 	Arquivo Fonte.....: MovimentacaoEstoqueProduto.sql
-	Objetivo..........: Gerar um insert para a tabela de movimentacao no estoque da materia prima.
+	Objetivo..........: Lista Movimentacao de Estoque de Produtos pelo Id, passado por parametro. Caso nao seja passado parametro, lista todas as movimentacoes
 	Autor.............: Olivio Freitas
 	Data..............: 23/05/2024
 	Ex................: BEGIN TRAN
