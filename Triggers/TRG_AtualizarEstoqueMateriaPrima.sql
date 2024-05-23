@@ -3,9 +3,9 @@ ON [dbo].[MovimentacaoEstoqueMateriaPrima]
 FOR INSERT
 	AS
 	/*
-		DOCUMENTAÇÃO
-		Arquivo Fonte........:	TRG_AtualizarEstoqueMateriaPrima.sql
-		Objetivo.............:	Atualiza estoque da materia prima com base nas movimentações
+		DOCUMENTACAO
+		Arquivo Fonte........:	TRG_AtualizarEstoqueMatPrima.sql
+		Objetivo.............:	Atualiza estoque da materia prima com base nas movimentacoes
 		Autor................:	Adriel Alexander
 		Data.................:	22/05/2024
 		Autores Alteracao....:  Adriel Alexander
@@ -23,37 +23,35 @@ FOR INSERT
 																							DataMovimentacao,
 																							Quantidade
 																					   )
-										VALUES (3 , 1, GETDATE(), 20000 )
+										VALUES (1 , 1, GETDATE(), 200 ),
+											   (2 , 2, GETDATE(), 200 )
+											
 
-									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecução
+									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecucao
 
 									SELECT * FROM [dbo].[EstoqueMateriaPrima]
 
 								ROLLBACK TRAN					
 	*/
 	BEGIN
-		--declarando variáveis para realizar atualização do registro de EstoqueMateriaPrima
-		DECLARE @IdMovimentacao INT,
-				@IdTipoMovimentacao INT,
-				@QtdMovimentada INT,
-				@IdEstoqueMateriaPrima INT
+		--declarando variÃ¡veis para realizar atualizacao do registro de EstoqueMateriaPrima
+		DECLARE @IdTipoMovimentacao INT;
 	    
-		-- Atribuição de Valores 
-		SELECT @IdMovimentacao = Id,
-			   @IdTipoMovimentacao = idTipoMovimentacao,
-			   @QtdMovimentada = Quantidade,
-			   @IdEstoqueMateriaPrima = IdEstoqueMateriaPrima
-			FROM inserted
+
 		
-		--realiza atualização do estoque físico mediante as movimentações do estoque 
-		UPDATE [dbo].[EstoqueMateriaPrima]
-			SET QuantidadeFisica = QuantidadeFisica + (CASE WHEN @IdTipoMovimentacao  = 1  
-															THEN @QtdMovimentada 
-														    ELSE @QtdMovimentada * (-1)
-													    END)
-			WHERE IdMateriaPrima = @IdEstoqueMateriaPrima 
+		--realiza atualizacao do estoque fisico mediante as movimentacoes do estoque 
+		UPDATE emp
+			SET QuantidadeFisica = QuantidadeFisica + (CASE WHEN i.idTipoMovimentacao  = 1  
+															THEN i.Quantidade 
+														    ELSE i.Quantidade * (-1)
+													   END)
+			FROM [dbo].[EstoqueMateriaPrima] emp
+				INNER JOIN inserted i 
+					ON i.IdEstoqueMateriaPrima = emp.IdMateriaPrima
+		
+		--Verificacao de erros
 		IF @@ERROR <> 0 
 			BEGIN
-				RAISERROR('Não foi possivel atualizar o estoque da materia prima', 16,1);
+				RAISERROR('NÃ£o foi possivel atualizar o estoque da materia prima', 16,1);
 			END
 	END
