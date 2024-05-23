@@ -1,0 +1,53 @@
+USE pcp;
+GO
+
+CREATE OR ALTER FUNCTION [dbo].[FNC_ChecagemEstoqueProduto]	(
+																@IdProduto INT,
+																@Quantidade INT
+															)
+	RETURNS BIT
+	AS
+	/*
+	Documentacao
+	Arquivo Fonte...: FNC_ChecagemEstoqueProduto.sql
+	Objetivo........: Verifica o estoque do produto passado por parâmetro e retorna TRUE(1) ou FALSE(0)
+	Autor...........: Olívio Freitas
+	Data............: 22/05/2024
+	EX..............: 
+						DBCC FREEPROCCACHE
+						DBCC DROPCLEANBUFFERS
+
+						DECLARE @IdProduto INT = 8, --------------------> Alterar o Id do produto por aqui
+								@Data_Inicio DATETIME = GETDATE()
+								
+
+						SELECT [dbo].[FNC_ChecagemEstoqueProduto] (@IdProduto, 1);
+
+						SELECT *
+							FROM [dbo].[Produto] pr WITH(NOLOCK)
+								INNER JOIN [dbo].[EstoqueProduto] ep
+									ON ep.IdProduto = pr.Id
+							WHERE pr.Id = @IdProduto
+
+						SELECT DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS TempoExecucao;
+	Retorno.........:
+						0 - FALSE - Produto nao encontrado ou nao tem estoque suficiente
+						1 - TRUE - Temos estoque do produto
+	*/
+	BEGIN
+		-- Declaro as variaveis que preciso
+		DECLARE @EstoqueFisico INT
+
+		-- Atribuo a quantidade fisica a variavel
+		SELECT @EstoqueFisico = ep.QuantidadeFisica
+				FROM [dbo].[Produto] pr WITH(NOLOCK)
+					INNER JOIN [dbo].[EstoqueProduto] ep
+						ON ep.IdProduto = pr.Id
+				WHERE pr.Id = @IdProduto
+
+		-- Verificacao se eu tenho estoque maior do que a quantidade pedida
+		IF @Quantidade < @EstoqueFisico
+				RETURN 1
+		RETURN 0
+	END
+GO
