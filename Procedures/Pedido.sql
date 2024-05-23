@@ -80,7 +80,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 						Quantidade SMALLINT
 					)
 
-	--Checar se algum Id do produto não existe
+	--Checar se algum Id do produto passado não existe
 	IF EXISTS	(SELECT TOP 1 1
 						FROM [dbo].[Produto] p WITH(NOLOCK)
 							RIGHT JOIN #ProdutoDoPedido pdp
