@@ -2,39 +2,36 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEtapaProducao]
 	@Id INT
 	AS
 	/*
-	Documentação
-	Arquivo Fonte..: EtapasProducao.sql
-	Autor..............: Orcino Neto
-	Objetivo..........: Listar etapas de produção do produtos de um pedido.
-	Data...............: 21/05/2024
-	Ex..................:	
-							BEGIN TRAN
-								DBCC DROPCLEANBUFFERS; 
-								DBCC FREEPROCCACHE;
-	
-								DECLARE	@Dat_init DATETIME = GETDATE(),
-												@RET INT
+	Documentacao
+	Arquivo Fonte.....: EtapasProducao.sql
+	Autor.............: Orcino Neto
+	Objetivo..........: Listar etapas de producao do produtos de um pedido.
+	Data..............: 21/05/2024
+	Ex................:	BEGIN TRAN
+							DBCC DROPCLEANBUFFERS; 
+							DBCC FREEPROCCACHE;
 
-								EXEC @RET = [dbo].[SP_ListarEtapaProducao] 1
-	
-								SELECT @RET AS RETORNO
-	
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
-							ROLLBACK TRAN
+							DECLARE	@Data_Inicial DATETIME = GETDATE(),
+									@Retorno INT
+
+							EXEC @Retorno = [dbo].[SP_ListarEtapaProducao] 1
+
+							SELECT 	@Retorno AS Retorno,
+									DATEDIFF(MILLISECOND, @Data_Inicial, GETDATE()) AS Tempo
+						ROLLBACK TRAN
 	*/
 	BEGIN
 		SELECT	ep.IdProduto,
-					p.Nome,
-					ep.Descricao,
-					ep.Duracao,
-					ep.NumeroEtapa
+				p.Nome,
+				ep.Descricao,
+				ep.Duracao,
+				ep.NumeroEtapa
 			FROM [dbo].[EtapaProducao] ep WITH(NOLOCK)
 				INNER JOIN [dbo].[Produto] p WITH(NOLOCK)
 					ON ep.IdProduto = p.Id
 				INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
 					ON pp.IdProduto = p.Id
-			WHERE @Id = pp.IdPedido
-
+			WHERE pp.IdPedido = @Id
 	END
 GO
 
@@ -45,42 +42,51 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarEtapaProducao]
 	@NumEtapa TINYINT
 	AS
 	/*
-	Documentação
-	Arquivo Fonte..: EtapasProducao.sql
-	Autor..............: Orcino Neto
-	Objetivo..........: Criar etapas de produção para um produto.
-	Data...............: 23/05/2024
-	Ex..................:	
-							BEGIN TRAN
-								DBCC DROPCLEANBUFFERS; 
-								DBCC FREEPROCCACHE;
-	
-								DECLARE	@Dat_init DATETIME = GETDATE(),
-												@RET INT
-								SELECT * FROM [dbo].[EtapaProducao]
-								
-								EXEC @RET = [dbo].[SP_CriarEtapaProducao] 6, "Batendo bolo", 50,1
-								
-								SELECT * FROM [dbo].[EtapaProducao]
-								SELECT @RET AS RETORNO
-	
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
-							ROLLBACK TRAN
+	Documentacao
+	Arquivo Fonte.....: EtapasProducao.sql
+	Autor.............: Orcino Neto
+	Objetivo..........: Criar etapas de producao para um produto.
+	Data..............: 23/05/2024
+	Ex................:	BEGIN TRAN
+							SELECT * FROM
+								[dbo].[EtapaProducao] WITH(NOLOCK);
+
+							DBCC DROPCLEANBUFFERS; 
+							DBCC FREEPROCCACHE;
+
+							DECLARE	@Data_Inicial DATETIME = GETDATE(),
+									@Retorno INT
+							
+							EXEC @Retorno = [dbo].[SP_CriarEtapaProducao] 6, "Batendo bolo", 50, 1;
+
+							SELECT 	@Retorno AS Retorno,
+									DATEDIFF(MILLISECOND, @Data_Inicial, GETDATE()) AS TempoExecucao;
+
+							SELECT *
+								FROM [dbo].[EtapaProducao] WITH(NOLOCK);
+						ROLLBACK TRAN
+
+	Retornos..........: 00 - Sucesso.
+						01 - Erro, produto inexistente.
+						02 - Erro, nao foi possivel inserir um registro na tabela.
 	*/
 	BEGIN
-		--Verificação se existe produto
-		IF EXISTS	(
-							SELECT	TOP 1 1
+		--Verificacao se o produto existe
+		IF NOT EXISTS	(
+							SELECT TOP 1 1
 								FROM [dbo].[Produto] WITH(NOLOCK)	
-								WHERE @IdProduto = Id
+								WHERE Id = @IdProduto
 						)
-			--Inserindo etapa de produção
-			INSERT INTO [dbo].[EtapaProducao](IdProduto,Descricao,Duracao, NumeroEtapa)
-				VALUES(@IdProduto,@Descricao,@Duracao,@NumEtapa)
+			RETURN 1;
 
-		IF @@ROWCOUNT = 0
-			RETURN 1
-		RETURN 0
+		--Inserindo etapa de producao
+		INSERT INTO [dbo].[EtapaProducao](IdProduto,Descricao,Duracao, NumeroEtapa)
+			VALUES(@IdProduto,@Descricao,@Duracao,@NumEtapa)
+
+		IF @@ROWCOUNT <> 1 OR @@ERROR <> 0
+			RETURN 2;
+
+		RETURN 0;
 
 	END
 GO
@@ -93,46 +99,50 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarEtapaProducao]
 	@NumEtapaNovo TINYINT
 	AS
 	/*
-	Documentação
-	Arquivo Fonte..: EtapasProducao.sql
-	Autor..............: Orcino Neto
-	Objetivo..........: Atualizar etapas de produção para um produto.
-	Data...............: 23/05/2024
-	Ex..................:	
-							BEGIN TRAN
-								DBCC DROPCLEANBUFFERS; 
-								DBCC FREEPROCCACHE;
-	
-								DECLARE	@Dat_init DATETIME = GETDATE(),
-												@RET INT
-								SELECT * FROM [dbo].[EtapaProducao]
-								
-								EXEC @RET = [dbo].[SP_AtualizarEtapaProducao] 6, "Batendo bolo", 50,1,2
-								
-								SELECT * FROM [dbo].[EtapaProducao]
-								SELECT @RET AS RETORNO
-	
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
-							ROLLBACK TRAN
+	Documentacao
+	Arquivo Fonte.....: EtapasProducao.sql
+	Autor.............: Orcino Neto
+	Objetivo..........: Atualizar etapas de producao para um produto.
+	Data..............: 23/05/2024
+	Ex................:	BEGIN TRAN
+							SELECT *
+								FROM [dbo].[EtapaProducao] WITH(NOLOCK);
+							
+							DBCC DROPCLEANBUFFERS; 
+							DBCC FREEPROCCACHE;
+
+							DECLARE	@Data_Inicio DATETIME = GETDATE(),
+									@Retorno INT
+
+							EXEC @Retorno = [dbo].[SP_AtualizarEtapaProducao] 6, "Batendo bolo", 50, 1, 2;
+
+							SELECT 	@Retorno AS Retorno, 
+									DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo;
+							
+							SELECT *
+								FROM [dbo].[EtapaProducao] WITH(NOLOCK);
+						ROLLBACK TRAN
 	*/
 	BEGIN
-		--Verificação se existe produto
-		IF EXISTS	(
+		-- Verificando se existe produto
+		IF NOT EXISTS	(
 							SELECT	TOP 1 1
 								FROM [dbo].[Produto] WITH(NOLOCK)	
 								WHERE @IdProduto = Id
 						)
+			RETURN 1;
 
-			--Inserindo etapa de produção
-			UPDATE  [dbo].[EtapaProducao]
-				SET	Descricao = @Descricao,
-						Duracao = @Duracao,
-						NumeroEtapa = @NumEtapaNovo
-				WHERE IdProduto = @IdProduto AND NumeroEtapa = @NumEtapaAntigo
+		--Inserindo etapa de producao
+		UPDATE  [dbo].[EtapaProducao]
+			SET	Descricao = ISNULL(@Descricao, Descricao),
+				Duracao = ISNULL(@Duracao, Duracao),
+				NumeroEtapa = ISNULL(@NumEtapaNovo, NumeroEtapa)
+			WHERE IdProduto = @IdProduto
+				AND NumeroEtapa = @NumEtapaAntigo;
 
-		IF @@ROWCOUNT = 0
-			RETURN 1
-		RETURN 0
+		IF @@ROWCOUNT <> 1 OR @@ERROR <> 0
+			RETURN 2;
 
+		RETURN 0;
 	END
 GO

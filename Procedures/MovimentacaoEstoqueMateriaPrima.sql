@@ -37,7 +37,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InsertMovimentacaoEstoqueMateriaPrima]
 							04 - Erro ao inserir um registro na tabela.
 	*/
 	BEGIN
-		-- Se não for passado como parametro a data, utilizar a data atual.
+		-- Se nï¿½o for passado como parametro a data, utilizar a data atual.
 		IF @DataAtual IS NULL
 			SET @DataAtual = GETDATE();
 
@@ -82,7 +82,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarMovimentacaoEstoqueMateriaPrima]
 	/*
 		Documentacao
 		Arquivo Fonte.....: movimentacaoestoquemateriaprima.sql
-		Objetivo..........: Listar um ou vários registros da tabela de movimentacao estoque de materia prima.
+		Objetivo..........: Listar um ou varios registros da tabela de movimentacao estoque de materia prima.
 		Autor.............: Odlavir Florentino
 		Data..............: 22/05/2024
 		Ex................: BEGIN TRAN

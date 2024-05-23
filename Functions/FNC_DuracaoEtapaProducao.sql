@@ -2,24 +2,24 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_DuracaoEtapaProducao](@Id INT)
 	 RETURNS SMALLINT
 	 AS 
 	 /*
-		Documentação
+		Documentacao
 		Arquivo Fonte.........:	FNC_DuracaoEtapaProducao.sql
-		Objetivo..............:	Função para retornar a duração de uma etapa de produção
+		Objetivo..............:	Funcao para retornar a duracao de uma etapa de producao
 		Autor.................:	OrcinoNeto
  		Data..................:	21/05/2024
 		Ex....................:	DBCC DROPCLEANBUFFERS
 								DBCC FREEPROCCACHE
 								
-								DECLARE @DataInicio DATETIME = GETDATE()
+								DECLARE @Data_Inicio DATETIME = GETDATE();
 
 								SELECT	[dbo].[FNC_DuracaoEtapaProducao](2) AS Resultado,
-										DATEDIFF(millisecond, @DataInicio, GETDATE()) AS Tempo
+										DATEDIFF(millisecond, @Data_Inicio, GETDATE()) AS Tempo
 	*/
 	BEGIN
-		--Declarar variáveis
+		--Declarar variaveis
 		DECLARE	@Duracao SMALLINT
 
-		--Atribuir valor à duração
+		--Atribuir valor a duracao
 		SELECT	@Duracao = SUM(ep.Duracao)
 			FROM [dbo].[EtapaProducao] ep WITH(NOLOCK)
 				INNER JOIN [dbo].[Produto] p WITH(NOLOCK)
@@ -28,7 +28,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_DuracaoEtapaProducao](@Id INT)
 					ON pp.IdProduto = p.Id
 			WHERE @Id = pp.IdPedido
 
-		--Retornar duração
+		--Retornar duracao
 		RETURN @Duracao
 	END
 GO
