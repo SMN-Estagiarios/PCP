@@ -3,7 +3,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirProduto]	@Nome VARCHAR(45)
 	/*
 		Documentacao
 		Arquivo Fonte.....: Produto.sql
-		Objetivo..........: Inserir registro em [dbo].[Cliente]
+		Objetivo..........: Inserir registro em [dbo].[Produto]
 		Autor.............: Gabriel Damiani Puccinelli
  		Data..............: 10/05/2024
 		Ex................: BEGIN TRAN
@@ -31,7 +31,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirProduto]	@Nome VARCHAR(45)
 		--INSERE NA TABELA PRODUTO O REGISTRO DO NOVO PRODUTO EM QUESTAO
 		INSERT INTO Produto (Nome)
 			VALUES	(@Nome)
-			IF @@ROWCOUNT = 1
+
+		IF @@ROWCOUNT = 1
 			RETURN 0
 
 		RETURN 1
@@ -45,12 +46,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProduto]
 
 		Documentacao
 		Arquivo Fonte.....: Produto.sql
-		Objetivo..........: Inserir registro em [dbo].[Cliente]
+		Objetivo..........: Inserir registro em [dbo].[Produto]
 		Autor.............: Gabriel Damiani Puccinelli
  		Data..............: 10/05/2024
 		Ex................: BEGIN TRAN
-
-								EXEC [dbo].[SP_ListarProduto]
 
 								DBCC DROPCLEANBUFFERS
 								DBCC FREEPROCCACHE
@@ -58,7 +57,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProduto]
 								DECLARE	@Ret INT,
 										@DataInicio DATETIME = GETDATE()
 
-								EXEC @Ret = [dbo].[SP_InserirProduto] 'Dorflex'
+								EXEC @Ret = [dbo].[SP_ListarProduto]
 
 								SELECT @Ret AS Retorno, DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 
