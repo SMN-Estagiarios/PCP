@@ -16,6 +16,6 @@ DROP TABLE [dbo].[Cliente]
 
 -- Drop de procedures
 
-DROP PROCEDURE [dbo].[dbo].[SP_InserirPedido]
+DROP PROCEDURE [dbo].[SP_InserirPedido]
 DROP PROCEDURE [dbo].[SP_ListarPedidos]
 DROP PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
