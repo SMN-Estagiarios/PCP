@@ -1,3 +1,7 @@
+USE pcp
+
+GO
+
 INSERT INTO [dbo].[Cliente] (Nome) 
 VALUES 
 							('João Silva'),
@@ -94,14 +98,14 @@ GO
 
 
 -- Inserts de mock de estoque para cada produto
-INSERT INTO [dbo].[EstoqueProduto]	(IdProduto, QuantidadeFisica, QuantidadeMinima, QuantidadeVirtual) 
+INSERT INTO [dbo].[EstoqueProduto]	(IdProduto, QuantidadeFisica, QuantidadeMinima) 
 VALUES 
-									(1, 150, 100, 0), -- Caixa de papelão laminado super resistente
-									(2, 300, 150, 0), -- Sacola de papel kraft reciclado
-									(3, 300, 200, 0), -- Embalagem plástica para alimentos
-									(4, 200, 100, 0), -- Pote de vidro para conservas
-									(5, 350, 250, 0), -- Envelope de papel para correspondência
-									(6, 300, 300, 0); -- Garrafa PET para bebidas
+									(1, 150, 100), -- Caixa de papelão laminado super resistente
+									(2, 300, 150), -- Sacola de papel kraft reciclado
+									(3, 300, 200), -- Embalagem plástica para alimentos
+									(4, 200, 100), -- Pote de vidro para conservas
+									(5, 350, 250), -- Envelope de papel para correspondência
+									(6, 300, 300); -- Garrafa PET para bebidas
 GO
 
 -- Insert único para o estoque de todas as matérias-primas
@@ -148,51 +152,51 @@ GO
 -- Inserts para a tabela EtapaProducao
 
 -- Etapas de produção para 'Caixa de papelão laminado super resistente' (IdProduto = 1)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao) 
+INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 VALUES
-									(1, 'Corte do papelão', 60),
-									(1, 'Aplicação de cola e montagem', 120),
-									(1, 'Laminação e acabamento', 90);
+									(1, 'Corte do papelão', 60, 1),
+									(1, 'Aplicação de cola e montagem', 120, 2),
+									(1, 'Laminação e acabamento', 90, 3);
 GO
 
 -- Etapas de produção para 'Sacola de papel kraft reciclado' (IdProduto = 2)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao) 
+INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 VALUES
-									(2, 'Corte do papel kraft', 45),
-									(2, 'Montagem e colagem das alças', 60),
-									(2, 'Reforço e finalização', 30);
+									(2, 'Corte do papel kraft', 45, 1),
+									(2, 'Montagem e colagem das alças', 60, 2),
+									(2, 'Reforço e finalização', 30, 3);
 GO
 
 -- Etapas de produção para 'Embalagem plástica para alimentos' (IdProduto = 3)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao) 
+INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 VALUES
-									(3, 'Extrusão do plástico', 120),
-									(3, 'Corte e moldagem', 90),
-									(3, 'Selagem térmica', 60);
+									(3, 'Extrusão do plástico', 120, 1),
+									(3, 'Corte e moldagem', 90, 2),
+									(3, 'Selagem térmica', 60, 3);
 GO
 
 -- Etapas de produção para 'Pote de vidro para conservas' (IdProduto = 4)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao)
+INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa)
 VALUES
-									(4, 'Fabricação do vidro', 180),
-									(4, 'Moldagem e resfriamento', 120),
-									(4, 'Aplicação da tampa e vedante', 45);
+									(4, 'Fabricação do vidro', 180, 1),
+									(4, 'Moldagem e resfriamento', 120, 2),
+									(4, 'Aplicação da tampa e vedante', 45, 3);
 GO
 
 -- Etapas de produção para 'Envelope de papel para correspondência' (IdProduto = 5)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao) 
+INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 VALUES
-									(5, 'Corte do papel sulfite', 30),
-									(5, 'Dobra e montagem', 45),
-									(5, 'Aplicação do adesivo de selagem', 15);
+									(5, 'Corte do papel sulfite', 30, 1),
+									(5, 'Dobra e montagem', 45, 2),
+									(5, 'Aplicação do adesivo de selagem', 15, 3);
 GO
 
 -- Etapas de produção para 'Garrafa PET para bebidas' (IdProduto = 6)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao) 
+INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 VALUES
-									(6, 'Fabricação do plástico PET', 150),
-									(6, 'Sopro e moldagem da garrafa', 105),
-									(6, 'Aplicação da tampa de rosca', 30);
+									(6, 'Fabricação do plástico PET', 150, 1),
+									(6, 'Sopro e moldagem da garrafa', 105, 2),
+									(6, 'Aplicação da tampa de rosca', 30, 3);
 GO 
 
 -- Primeiro Pedido do cliente João Silva - Caixa de papelão laminado super resistente
