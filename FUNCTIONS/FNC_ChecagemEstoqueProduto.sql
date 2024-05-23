@@ -10,8 +10,8 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_ChecagemEstoqueProduto]	(
 	/*
 	Documentacao
 	Arquivo Fonte...: FNC_ChecagemEstoqueProduto.sql
-	Objetivo........: Verifica o estoque do produto passado por parâmetro e retorna TRUE(1) ou FALSE(0)
-	Autor...........: Olívio Freitas
+	Objetivo........: Verifica o estoque do produto passado por parametro e retorna TRUE(1) ou FALSE(0)
+	Autor...........: Olivio Freitas
 	Data............: 22/05/2024
 	EX..............: 
 						DBCC FREEPROCCACHE
