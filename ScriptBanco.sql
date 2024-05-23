@@ -1,4 +1,4 @@
-CREATE DATABASE pcp;
+CREATE DATABASE pcp;  
 GO
 
 USE pcp;
@@ -23,7 +23,7 @@ CREATE TABLE [dbo].[Produto]	(
 GO
 
 -- -----------------------------------------------------
--- Tabela [dbo].[Pedido]
+-- Tabela [dbo].[Pedido] 
 -- -----------------------------------------------------
 CREATE TABLE [dbo].[Pedido]	(
 								Id INT PRIMARY KEY IDENTITY,
@@ -45,7 +45,6 @@ CREATE TABLE [dbo].[EstoqueProduto](
 										IdProduto INT PRIMARY KEY,
 										QuantidadeFisica INT NOT NULL,
 										QuantidadeMinima INT NOT NULL,
-										QuantidadeVirtual INT NOT NULL
 
 										CONSTRAINT fk_EstoqueProduto_Produto1
 											FOREIGN KEY (IdProduto)
@@ -146,7 +145,8 @@ CREATE TABLE [dbo].[EtapaProducao]	(
 										Id INT PRIMARY KEY IDENTITY,
 										IdProduto INT NOT NULL,
 										Descricao VARCHAR(150) NOT NULL,
-										Duracao SMALLINT NOT NULL
+										Duracao SMALLINT NOT NULL,
+										NumeroEtapa TINYINT NOT NULL,
 
 										CONSTRAINT fk_Etapa_Produto1
 											FOREIGN KEY (IdProduto)
@@ -180,6 +180,7 @@ CREATE TABLE [dbo].[Producao]	(
 									IdPedidoProduto INT NOT NULL,
 									DataInicio DATETIME NOT NULL,
 									DataTermino DATETIME NULL,
+									Quantidade  SMALLINT NOT NULL,
 
 									CONSTRAINT fk_Producao_Etapa1
 										FOREIGN KEY (IdEtapaProducao)
