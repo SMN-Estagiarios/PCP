@@ -34,11 +34,7 @@ FOR INSERT
 								ROLLBACK TRAN					
 	*/
 	BEGIN
-		--declarando variáveis para realizar atualizacao do registro de EstoqueMateriaPrima
-		DECLARE @IdTipoMovimentacao INT;
-	    
-
-		
+			
 		--realiza atualizacao do estoque fisico mediante as movimentacoes do estoque 
 		UPDATE emp
 			SET QuantidadeFisica = QuantidadeFisica + (CASE WHEN i.idTipoMovimentacao  = 1  
