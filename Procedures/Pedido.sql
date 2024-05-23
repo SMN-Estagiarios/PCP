@@ -1,19 +1,26 @@
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 	@IdCliente INT,
-	@DataPromessa DATE
+	@DataPromessa DATE,
+	@JSON NVARCHAR(MAX)
 	AS
 	/*
-		DocumentaÁ„o
+		Documenta√ß√£o
 		Arquivo Fonte........:	Pedido.sql
-		Objetivo.............:	Procedure para inserir um novo registro de pedido
-		Autor................:	Jo„o Victor Maia
+		Objetivo.............:	Procedure para inserir um novo registro de pedido e os seus produtos
+		Autor................:	Jo√£o Victor Maia
 		Data.................:	21/05/2024
 		Exemplo..............:	BEGIN TRAN
+									DBCC FREEPROCCACHE
+									DBCC DROPCLEANBUFFERS
+
 									DECLARE @Ret INT,
 											@DataInicio DATETIME = GETDATE(),
 											@DataPromessa DATE =  DATEADD(DAY, 10, GETDATE())
 
-									EXEC @Ret = [dbo].[SP_InserirPedido] 1, @DataPromessa
+									EXEC @Ret = [dbo].[SP_InserirPedido] 1, @DataPromessa, N'	[	{"IdProduto": 1, "Quantidade": 2},
+																									{"IdProduto": 2, "Quantidade": 5}
+																								]
+																							'
 
 									SELECT	@Ret AS Retorno,
 											DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
@@ -23,17 +30,27 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 											DataPromessa,
 											DataEntrega
 										FROM [dbo].[Pedido] WITH(NOLOCK)
-										WHERE Id = SCOPE_IDENTITY()
+										WHERE Id = IDENT_CURRENT('Pedido')
+
+									SELECT	IdPedido,
+											IdProduto,
+											Quantidade
+										FROM [dbo].[PedidoProduto]
+										WHERE IdPedido = IDENT_CURRENT('Pedido')
 								ROLLBACK TRAN
 		Retornos.............:	0 - Sucesso
-								1 - Erro: Id do cliente n„o existe
-								2 - Erro: A data da promessa È inferior ‡ hoje
+								1 - Erro: o cliente n√£o existe
+								2 - Erro: a data da promessa √© menor que a data atual
+								3 - Erro: um Id de produto inexistente foi passado
 	*/
 	BEGIN
-		--Declarar vari·veis
-		DECLARE @DataAtual DATE = GETDATE()
+		--Declarar vari√°veis
+		DECLARE @IdProduto INT,
+				@Quantidade SMALLINT,
+				@IdPedido INT,
+				@DataAtual DATE = GETDATE()
 
-		--Checar se o Id do cliente existe
+		--Checar se o cliente existe
 		IF NOT EXISTS	(SELECT TOP 1 1
 							FROM [dbo].[Cliente] WITH(NOLOCK)
 							WHERE Id = @IdCliente
@@ -42,15 +59,55 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 				RETURN 1
 			END
 
-		--Checar se a data da promessa È maior que hoje
+		--Checar se a data da promessa √© maior que hoje
 		IF @DataPromessa < @DataAtual
 			BEGIN
 				RETURN 2
 			END
 
-		--Inserir um pedido
-		INSERT INTO [dbo].[Pedido]	(IdCliente, DataPedido, DataPromessa, DataEntrega) VALUES
-									(@IdCliente, @DataAtual, @DataPromessa, NULL)
+		--Criar tabela tempor√°ria
+		CREATE TABLE #ProdutoDoPedido	(
+											IdProduto INT,
+											Quantidade SMALLINT
+										)
+		
+		--Inserir dados na tabela tempor√°ria
+		INSERT INTO #ProdutoDoPedido
+			SELECT	IdProduto,
+					Quantidade
+				FROM OPENJSON(@JSON)
+				WITH(	IdProduto INT,
+						Quantidade SMALLINT
+					)
+
+	--Checar se algum Id do produto passado n√£o existe
+	IF EXISTS	(SELECT TOP 1 1
+						FROM [dbo].[Produto] p WITH(NOLOCK)
+							RIGHT JOIN #ProdutoDoPedido pdp
+								ON pdp.IdProduto = p.Id
+						WHERE p.Id IS NULL
+				)
+		BEGIN
+			RETURN 3
+		END
+
+	--Inserir novo pedido
+	INSERT INTO [dbo].[Pedido]	(IdCliente, DataPedido, DataPromessa, DataEntrega) VALUES
+								(@IdCliente, @DataAtual, @DataPromessa, NULL)
+	
+	--Atribuir valor √† IdPedido
+	SET @IdPedido = SCOPE_IDENTITY()
+
+	--Inserir a lista dos produtos do pedido
+	INSERT INTO [dbo].[PedidoProduto](IdPedido, IdProduto, Quantidade)
+		SELECT	@IdPedido,
+				IdProduto,
+				Quantidade
+			FROM #ProdutoDoPedido
+
+	--Dropar tabela tempor√°ria
+	DROP TABLE #ProdutoDoPedido
+
 	END
 GO
 
@@ -62,26 +119,29 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 	@DataEntrega DATE = NULL
 	AS
 	/*
-		DocumentaÁ„o
+		Documenta√ß√£o
 		Arquivo Fonte........:	Pedido.sql
 		Objetivo.............:	Procedure para listar todos os pedidos registrados ou todos os pedidos filtrados por um ou mais campos
-		Autor................:	Jo„o Victor Maia
+		Autor................:	Jo√£o Victor Maia
 		Data.................:	21/05/2024
-		Exemplo..............:	DECLARE @Ret INT,
+		Exemplo..............:	DBCC FREEPROCCACHE
+								DBCC DROPCLEANBUFFERS
+
+								DECLARE @Ret INT,
 										@DataInicio DATETIME = GETDATE()
 
 								EXEC @Ret = [dbo].[SP_ListarPedidos] @IdCliente = 1, @Id = 1
 
 								SELECT	@Ret AS Retorno,
 										DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
-		Autor AlteraÁ„o......:	Jo„o Victor Maia
-		Data AlteraÁ„o.......:	22/05/2024
-		Objetivo AlteraÁ„o...:	ValidaÁ„o de par‚metros e indentaÁ„o do cÛdigo
+		Autor Altera√ß√£o......:	Jo√£o Victor Maia
+		Data Altera√ß√£o.......:	22/05/2024
+		Objetivo Altera√ß√£o...:	Valida√ß√£o de par√¢metros e indenta√ß√£o do c√≥digo
 		Retornos.............:	0 - Sucesso
-								1 - Erro: Nenhum par‚metro foi passado
+								1 - Erro: Nenhum par√¢metro foi passado
 	*/
 	BEGIN
-		--Declarar vari·veis
+		--Declarar vari√°veis
 		DECLARE @Comando NVARCHAR(MAX),
 				@Parametros NVARCHAR(1000),
 				@Where BIT
@@ -97,7 +157,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 								WHERE '
 		SET @Where = 0
 
-		--Montar cl·usula WHERE
+		--Montar cl√°usula WHERE
 		IF @Id IS NOT NULL 
 			BEGIN
 				SET @Comando = @Comando + N'Id = @pId'
@@ -140,10 +200,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 				SET @Where = 1 
 			END
 		
-		--Criar par‚metros da execuÁ„o do comando
+		--Criar par√¢metros da execu√ß√£o do comando
 		SET @Parametros = N'@pId INT, @pIdCliente INT, @pDataPedido DATE, @pDataPromessa DATE, @pDataEntrega DATE'
 			
-		--Checar se n„o h· par‚metros
+		--Checar se n√£o h√° par√¢metros
 		IF RIGHT(@Comando, 1) = ' ' 
 			BEGIN
 				RETURN 1
@@ -164,9 +224,9 @@ GO
 CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 	AS 
 	/*
-		DocumentaÁ„o
+		Documenta√ß√£o
 		Arquivo Fonte.........:	FNC_VerificarMatPrimaProduto.sql
-		Objetivo..............:	Lista os pedidos que est„o em atraso e os pedidos que foram entregues em atraso 
+		Objetivo..............:	Lista os pedidos que est√£o em atraso e os pedidos que foram entregues em atraso 
 		Autor.................:	Adriel Alexander de Sousa
 		Data..................:	21/05/2024
 		Ex....................:	DBCC FREEPROCCACHE
@@ -179,7 +239,7 @@ CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 								SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao
 	*/
 	BEGIN
-		--Declaracao de vari·veis 
+		--Declaracao de vari√°veis 
 		DECLARE @DataAtual DATE = GETDATE();
 
 
@@ -208,64 +268,28 @@ GO
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosEmProducao]
 	AS
 		/*
-			DocumentaÁ„o
+			Documenta√ß√£o
 			Arquivo fonte.........: Pedido.sql
-			Objetivo..............: Listar pedidos que est„o em produÁ„o
+			Objetivo..............: Listar pedidos que est√£o em produ√ß√£o
 			Autor.................: Gustavo Targino
 			Data..................: 22/05/2024
-			Autor AlteraÁ„o.......: Adriel Alexander de Sousa
-			Data AlteraÁ„o........: 22/05/2024
-			Ex....................: 
+			Ex....................: DBCC FREEPROCCACHE
+									DBCC DROPCLEANBUFFERS
+
 									DECLARE @DataInicio DATETIME = GETDATE()
+
 									EXEC [dbo].[SP_ListarPedidosEmProducao]
+
 									SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo
 		*/
 	BEGIN
-		-- Selecionando os pedidos em produÁ„o
+		-- Selecionando os pedidos em produ√ß√£o
 		SELECT p.Id,
 			   p.IdCliente,
 			   p.DataPedido,
 			   p.DataPromessa,
 			   p.DataEntrega
-			FROM [dbo].[Producao] pd WITH(NOLOCK)
-				INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
-					ON pd.IdPedidoProduto = pp.Id
-				INNER JOIN [dbo].[Pedido] p WITH(NOLOCK)
-					ON p.Id = pp.IdPedido
-			WHERE pd.DataTermino IS NULL
-				  AND p.DataEntrega IS NULL
+			FROM [dbo].[Pedido] p WITH(NOLOCK)
+				WHERE p.DataEntrega IS NULL
 	END
 GO
-
-CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
-
-	/*
-	DocumentaÁ„o
-		Arquivo Fonte........:	Pedido.sql
-		Objetivo.............:	Procedure para listar todos os pedidos completos
-		Autor................:	Thays Carvalho
-		Data.................:	22/05/2024
-		Exemplo..............:	
-								DECLARE @Ret INT,
-										@DataInicio DATETIME = GETDATE()
-
-								EXEC @Ret = [dbo].[SP_ListarPedidosCompletos] 
-
-								SELECT	@Ret AS Retorno,
-										DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
-								
-		Retornos.............:	0 - Sucesso
-	*/
-	AS
-	BEGIN
-			SELECT	p.Id,
-					p.IdCliente,
-					p.DataPedido,
-					p.DataPromessa,
-					p.DataEntrega	
-				FROM [dbo].[Pedido] p WITH(NOLOCK) 
-				WHERE p.DataEntrega IS NOT NULL
-
-			RETURN 0
-	END
- GO
