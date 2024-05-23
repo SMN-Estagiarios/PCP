@@ -15,8 +15,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 											@DataPromessa DATE =  DATEADD(DAY, 10, GETDATE())
 
 									EXEC @Ret = [dbo].[SP_InserirPedido] 1, @DataPromessa, N'	[	{"IdProduto": 1, "Quantidade": 2},
-																									{"IdProduto": 2, "Quantidade": 5},
-																									{"IdProduto": 99, "Quantidade": 1}
+																									{"IdProduto": 2, "Quantidade": 5}
 																								]
 																							'
 
@@ -68,35 +67,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 											IdProduto INT,
 											Quantidade SMALLINT
 										)
-
-		--Declarar cursor
-		DECLARE Produtos CURSOR FOR
-			SELECT IdProduto, Quantidade
-			FROM OPENJSON(@JSON)
-			WITH(
-				IdProduto INT '$.IdProduto',
-				Quantidade SMALLINT '$.Quantidade'
-				)
-
-	-- Abrir o cursor
-	OPEN Produtos
-
-	-- Loop para inserir linha por linha do JSON na tabela temporária
-	FETCH NEXT FROM Produtos INTO @IdProduto, @Quantidade
-	WHILE @@FETCH_STATUS = 0
-		BEGIN
-
-			-- Inserir na tabela temporária
-			INSERT INTO #ProdutoDoPedido (IdProduto, Quantidade)
-			VALUES (@IdProduto, @Quantidade)
-
-			-- Obter o próximo registro
-			FETCH NEXT FROM produtos INTO @IdProduto, @Quantidade
-		END
-
-	-- Fechar e desalocar o cursor
-	CLOSE Produtos
-	DEALLOCATE Produtos
+		
+		--Inserir dados na tabela temporária
+		INSERT INTO #ProdutoDoPedido
+			SELECT	IdProduto,
+					Quantidade
+				FROM OPENJSON(@JSON)
+				WITH(	IdProduto INT,
+						Quantidade SMALLINT
+					)
 
 	--Checar se algum Id do produto não existe
 	IF EXISTS	(SELECT TOP 1 1
