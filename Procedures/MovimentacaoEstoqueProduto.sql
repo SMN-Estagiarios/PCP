@@ -116,6 +116,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarMovimentacaoEstoqueProduto]
 
 							SELECT	@Retorno AS Retorno,
 									DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE());
+
 						ROLLBACK TRAN
 
 	Retornos..........: 0 - Sucesso.
