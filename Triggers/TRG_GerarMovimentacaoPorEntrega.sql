@@ -1,14 +1,15 @@
-CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntrega]
+CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 	ON [dbo].[Pedido]
 	FOR UPDATE
 	AS
 	/*
-		DOCUMENTAÇÃO
-		Arquivo Fonte........:	TRG_GerarMovimentacaoPorEntrega.sql
-		Objetivo.............:	Gere inserts automaticamente na tabela de movimentações do estoque de todos os produtos de um pedido
-								quando o mesmo é entregue ao cliente
+		DOCUMENTACAO
+		Arquivo Fonte........:	TRG_GerarMovimentacaoPorEntregaDePedido.sql
+		Objetivo.............:	Gere inserts automaticamente na tabela de movimentaÃ§Ã£o do estoque de todos os produtos de um pedido 
+								IdTipoMovimentacao travado em 2 para categorizar saida de produtos do estoque mediante entrega do pedido 
+								quando o mesmo Ã© entregue ao cliente
 		Autor................:	Adriel Alexander
-		Data.................:	22/05/2024
+		Data.................:	23/05/2024
 		Autores Alteracao....:  Adriel Alexander
 		Ex...................:  BEGIN TRAN
 									DBCC DROPCLEANBUFFERS;
@@ -16,20 +17,23 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntrega]
 
 									DECLARE @DATA_INI DATETIME = GETDATE();
 
-									SELECT * FROM [dbo].[EstoqueProduto]
-
-									SELECT * FROM [dbo].[MovimentacaoEstoqueProduto]
+									SELECT * 
+										FROM [dbo].[EstoqueProduto]
+									SELECT * 
+										FROM [dbo].[MovimentacaoEstoqueProduto]
 
 									UPDATE [dbo].[Pedido]
 										SET DataEntrega = GETDATE()
-										WHERE Id = 3
+										WHERE Id = 7
+									SELECT * 
+										FROM [dbo].[PedidoProduto]
 
-									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecução
+									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecucao
 
-									SELECT * FROM [dbo].[MovimentacaoEstoqueProduto]
-
-									SELECT * FROM [dbo].[EstoqueProduto]
-
+									SELECT * 
+										FROM [dbo].[EstoqueProduto]
+									SELECT * 
+										FROM [dbo].[MovimentacaoEstoqueProduto]
 								ROLLBACK TRAN					
 	*/
 	BEGIN
@@ -41,7 +45,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntrega]
 				@DataEntregaInserted DATE,
 				@DataEntregaDeleted DATE
 			
-		-- atribuição de valores para as variáveis 
+		-- atribuicoes de valores para as variaveis 
 		SELECT @DataEntregaInserted = DataEntrega,
 			   @IdPedido = Id
 			FROM Inserted
@@ -50,62 +54,16 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntrega]
 			FROM deleted
 
 
-		--verifica se o motivo do update foi a realização da entrega dos produtos aos clientes
+		--verifica se o motivo do update foi a realizacao da entrega dos produtos aos clientes
 		IF @DataEntregaInserted IS NOT NULL AND @DataEntregaDeleted IS NULL
 			BEGIN 
-				--criando tabela temporária para receber a relação dos produtos que foram entregues 	
-				CREATE TABLE #TabelaProdutos (
-												IdPedido INT,
-												IdProduto INT,
-												Quantidade INT
-												)
-				--inserindo relacao dentro da tabela 
-				INSERT INTO #TabelaProdutos
-					SELECT pp.IdPedido,
-						   pp.IdProduto,
-						   pp.Quantidade
-						FROM [dbo].[PedidoProduto] pp WITH(NOLOCK)
-						WHERE pp.IdPedido = @IdPedido
-				
-				-- iterando entre os pedidos de um produto 
-				WHILE EXISTS (
-								SELECT tp.IdPedido,
-									   tp.IdProduto,
-									   tp.Quantidade
-									FROM #TabelaProdutos tp
-							 )
-					BEGIN
-						--atribuindo as variáveis 
-						SELECT TOP 1 @IdPedido = tp.IdPedido,
-									 @IdEstoqueProduto = tp.IdProduto,
-									 @Quantidade = tp.Quantidade
-								FROM #TabelaProdutos tp
-						
-						--fazendo insert na tabela de movimentação de produtos 
-						INSERT INTO [dbo].[MovimentacaoEstoqueProduto](
-																		IdTipoMovimentacao,
-																		IdEstoqueProduto,
-																		DataMovimentacao,
-																		Quantidade
-																	  )
-						   VALUES									  (
-																		2,
-																		@IdEstoqueProduto,
-																		@DataAtual,
-																		@Quantidade
-																	  )
-					   --deletando informações do registro da tabela temporaria 
-					   DELETE FROM #TabelaProdutos
-							  WHERE IdProduto = @IdEstoqueProduto
-
-					  --resetando as variáveis 
-					  SET @IdPedido = NULL
-					  SET @IdEstoqueProduto = NULL
-					  SET @Quantidade = NULL
-
-					END
-				--delecao da tabela temporaria
-				DROP TABLE #TabelaProdutos
+			
+				INSERT INTO [dbo].[MovimentacaoEstoqueProduto] 
+					  SELECT   pp.IdProduto,
+							   2,
+							   @DataAtual,
+							   pp.Quantidade
+							FROM [dbo].[PedidoProduto] pp WITH(NOLOCK)
+							WHERE pp.IdPedido = @IdPedido
 			END
 	END	
-	
