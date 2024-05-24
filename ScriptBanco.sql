@@ -177,7 +177,7 @@ GO
 CREATE TABLE [dbo].[Producao]	(
 									Id INT PRIMARY KEY IDENTITY,
 									IdEtapaProducao INT NOT NULL,
-									IdPedidoProduto INT NOT NULL,
+									IdPedidoProduto INT,
 									DataInicio DATETIME NOT NULL,
 									DataTermino DATETIME NULL,
 									Quantidade  SMALLINT NOT NULL,
