@@ -332,3 +332,80 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 			RETURN 0
 	END
  GO
+
+ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarBaixaPedido]
+	@IdPedido INT
+	AS
+	/*
+			Documentação
+			Arquivo fonte.........: Pedido.sql
+			Objetivo..............: Listar produtos que estão em produção
+			Autor.................: Gustavo Targino
+			Data..................: 22/05/2024
+			Ex....................: BEGIN TRAN
+											DBCC FREEPROCCACHE
+											DBCC DROPCLEANBUFFERS
+
+											DECLARE @DataInicio DATETIME = GETDATE(),
+													@RET INT
+											
+											SELECT * FROM EstoqueProduto
+				
+											EXEC @RET = [dbo].[SP_RealizarBaixaPedido]7
+										
+											SELECT * FROM EstoqueProduto
+																	
+
+											SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo,
+												@RET 
+				
+				
+
+									ROLLBACK TRAN 
+	*/
+	BEGIN
+		--Declaracao de variáveis 
+		DECLARE @DataAtual DATE = GETDATE(),
+			    @DataEntrega DATE
+				
+		
+		SELECT @IdPedido = Id,
+			   @DataEntrega = DataEntrega
+			FROM [dbo].[Pedido] WITH(NOLOCK)
+			WHERE Id = @IdPedido
+	
+		--verificar se o pedido existe 
+		IF @IdPedido IS NULL 
+			BEGIN
+				RETURN 1
+			END
+		--verificar se o pedido ja foi finalizado 
+		IF @DataEntrega IS NOT NULL
+			BEGIN 
+				RETURN 2
+			END
+		--verificar se possui estoque para finalizar o pedido
+		IF EXISTS (
+					SELECT 
+						ep.QuantidadeFisica,
+						pp.Quantidade
+						FROM [dbo].[EstoqueProduto] ep WITH(NOLOCK)
+							INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
+								ON pp.IdProduto = ep.IdProduto
+							WHERE pp.IdPedido = @IdPedido
+								  AND pp.Quantidade > ep.QuantidadeFisica 
+				  )
+			BEGIN
+				RETURN 3
+			END
+			   
+		--realizar a atualização do registro do pedido para dar baixa 
+		UPDATE Pedido
+			SET DataEntrega = GETDATE()
+				WHERE Id = @IdPedido
+		--Verifica se o registro foi atualizado	
+		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+			RETURN 4
+
+		RETURN 0
+	END
