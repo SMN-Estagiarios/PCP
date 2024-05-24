@@ -482,98 +482,50 @@ GO
 -- Inserts para a tabela EtapaProducao
 
 -- Etapas de produção para 'Caixa de papelão laminado super resistente' (IdProduto = 1)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa)
-	VALUES	(1, 'Corte do papelão', 60, 1),
-			(1, 'Aplicação de cola e montagem', 120, 2),
-			(1, 'Laminação e acabamento', 90, 3);
-
-GO
-
--- Etapas de produção para 'Sacola de papel kraft reciclado' (IdProduto = 2)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa)
-	VALUES	(2, 'Corte do papel kraft', 45, 1),
-			(2, 'Montagem e colagem das alçaas', 60, 2),
-			(2, 'Reforço e finalização', 30, 3);
-
-GO
-
--- Etapas de produção para 'Embalagem plástica para alimentos' (IdProduto = 3)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa)
-	VALUES	(3, 'Extrusão do plásstico', 120, 1),
-			(3, 'Corte e moldagem', 90, 2),
-			(3, 'Selagem térrmica', 60, 3);
-
-GO
-
--- Etapas de produção para 'Pote de vidro para conservas' (IdProduto = 4)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa)
-	VALUES	(4, 'Fabricação do vidro', 180, 1),
-			(4, 'Moldagem e resfriamento', 120, 2),
-			(4, 'Aplicação da tampa e vedante', 45, 3);
-
-GO
-
--- Etapas de produção para 'Envelope de papel para correspondência' (IdProduto = 5)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa)
-	VALUES	(5, 'Corte do papel sulfite', 30, 1),
-			(5, 'Dobra e montagem', 45, 2),
-			(5, 'Aplicação do adesivo de selagem', 15, 3);
-
-GO
-
--- Etapas de produção para 'Garrafa PET para bebidas' (IdProduto = 6)
-INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa)
-	VALUES	(6, 'Fabricação do plástico PET', 150, 1),
-			(6, 'Sopro e moldagem da garrafa', 105, 2),
-			(6, 'Aplicação da tampa de rosca', 30, 3);
-
-GO 
-
--- Etapas de produção para 'Caixa de papelão laminado super resistente' (IdProduto = 1)
 INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 	VALUES	(1, 'Corte do papelão', 60, 1),
-			(1, 'Aplicação de cola e montagem', 120, 2),
-			(1, 'Laminação e acabamento', 90, 3);
+		(1, 'Aplicação de cola e montagem', 120, 2),
+		(1, 'Laminação e acabamento', 90, 3);
 
 GO
 
 -- Etapas de produção para 'Sacola de papel kraft reciclado' (IdProduto = 2)
 INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 	VALUES	(2, 'Corte do papel kraft', 45, 1),
-			(2, 'Montagem e colagem das alças', 60, 2),
-			(2, 'Reforço e finalização', 30, 3);
+		(2, 'Montagem e colagem das alças', 60, 2),
+		(2, 'Reforço e finalização', 30, 3);
 
 GO
 
 -- Etapas de produção para 'Embalagem plástica para alimentos' (IdProduto = 3)
 INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 	VALUES	(3, 'Extrusão do plástico', 120, 1),
-			(3, 'Corte e moldagem', 90, 2),
-			(3, 'Selagem térmica', 60, 3);
+		(3, 'Corte e moldagem', 90, 2),
+		(3, 'Selagem térmica', 60, 3);
 
 GO
 
 -- Etapas de produção para 'Pote de vidro para conservas' (IdProduto = 4)
 INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa)
 	VALUES	(4, 'Fabricação do vidro', 180, 1),
-			(4, 'Moldagem e resfriamento', 120, 2),
-			(4, 'Aplicação da tampa e vedante', 45, 3);
+		(4, 'Moldagem e resfriamento', 120, 2),
+		(4, 'Aplicação da tampa e vedante', 45, 3);
 
 GO
 
 -- Etapas de produção para 'Envelope de papel para correspondência' (IdProduto = 5)
 INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 	VALUES	(5, 'Corte do papel sulfite', 30, 1),
-			(5, 'Dobra e montagem', 45, 2),
-			(5, 'Aplicação do adesivo de selagem', 15, 3);
+		(5, 'Dobra e montagem', 45, 2),
+		(5, 'Aplicação do adesivo de selagem', 15, 3);
 
 GO
 
 -- Etapas de produção para 'Garrafa PET para bebidas' (IdProduto = 6)
 INSERT INTO [dbo].[EtapaProducao]	(IdProduto, Descricao, Duracao, NumeroEtapa) 
 	VALUES	(6, 'Fabricação do plástico PET', 150, 1),
-			(6, 'Sopro e moldagem da garrafa', 105, 2),
-			(6, 'Aplicação da tampa de rosca', 30, 3);
+		(6, 'Sopro e moldagem da garrafa', 105, 2),
+		(6, 'Aplicação da tampa de rosca', 30, 3);
 
 GO 
 
