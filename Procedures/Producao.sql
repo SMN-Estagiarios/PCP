@@ -4,7 +4,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducaoDeEtapa]		@Quantidade SMALLIN
 
 	AS
 	/*
-		Documenta��o
+		Documentacao
 			Arquivo fonte........: Producao.sql
 			Objetivo.............: Inserir novo registro em Producao marcando inicio de nova etapa de producao
 			Autor................: Gabriel Damiani Puccinelli
@@ -44,14 +44,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducaoDeEtapa]		@Quantidade SMALLIN
 	END
 GO
 
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]	@IdProducao INT,
 																@Quantidade SMALLINT
 
 	AS
 	/*
-		Documenta��o
+		Documentacao
 			Arquivo fonte........: Producao.sql
-			Objetivo.............: Aplicar data de t�rmino no registro em Producao marcando termino de etapa de producao e 
+			Objetivo.............: Aplicar data de termino no registro em Producao marcando termino de etapa de producao e 
 								   marcar quantidade produzida no termino da etapa.
 			Autor................: Gabriel Damiani Puccinelli
 			Data.................: 23/05/2024
@@ -84,7 +85,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]	@IdProducao INT,
 									ROLLBACK TRAN
 
 			Retornos.............:	0. SUCESSO
-									1. NÃO HÁ TEMPO HÁBIL PARA TER FINALIZADO
+									1. NAO HA TEMPO HABIL PARA TER FINALIZADO
 	*/
 	BEGIN
 		--DECLARA VARIAVEIS
@@ -92,7 +93,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]	@IdProducao INT,
 				@DataInicioProducao DATETIME,
 				@TempoProducao INT
 
-		--ATRIBUI VALOR DE DURACAO DA ETAPA DE PRODUCAO A TEMPOEXECUCAO
+		--ATRIBUI VALOR DE DURACAO DA ETAPA DE PRODUCAO A TEMPO EXECUCAO
 		SELECT	@TempoProducao = Duracao,
 				@DataInicioProducao = DataInicio
 			FROM Producao pd
@@ -100,7 +101,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]	@IdProducao INT,
 					ON ep.Id = pd.IdEtapaProducao
 			WHERE pd.Id = @IdProducao
 
-		--VERIFICA SE HOUVE TEMPO H�BIL PARA TERMINAR A PRODUCAO
+		--VERIFICA SE HOUVE TEMPO HABIL PARA TERMINAR A PRODUCAO
 		IF (DATEDIFF(MINUTE, @DataInicioProducao, @DataAtual) < @TempoProducao)
 			RETURN 1
 

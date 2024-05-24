@@ -39,6 +39,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirProduto]	@Nome VARCHAR(45)
 	END
 GO
 
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProduto]
 	AS
 	/*
@@ -46,7 +47,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProduto]
 
 		Documentacao
 		Arquivo Fonte.....: Produto.sql
-		Objetivo..........: Inserir registro em [dbo].[Produto]
+		Objetivo..........: Listar itens do [dbo].[Produto]
 		Autor.............: Gabriel Damiani Puccinelli
  		Data..............: 10/05/2024
 		Ex................: BEGIN TRAN
