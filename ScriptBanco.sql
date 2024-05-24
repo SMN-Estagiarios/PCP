@@ -32,7 +32,7 @@ CREATE TABLE [dbo].[Pedido]	(
 								DataPromessa DATE NOT NULL,
 								DataEntrega DATE
 
-								CONSTRAINT fk_Pedido_Cliente1
+								CONSTRAINT fk_IdCliente_Pedido
 									FOREIGN KEY (IdCliente)
 									REFERENCES [dbo].[Cliente] (Id)
 							);
@@ -46,7 +46,7 @@ CREATE TABLE [dbo].[EstoqueProduto](
 										QuantidadeFisica INT NOT NULL,
 										QuantidadeMinima INT NOT NULL,
 
-										CONSTRAINT fk_EstoqueProduto_Produto1
+										CONSTRAINT fk_IdProduto_EstoqueProduto
 											FOREIGN KEY (IdProduto)
 											REFERENCES [dbo].[Produto] (Id)
 									);
@@ -70,12 +70,12 @@ CREATE TABLE [dbo].[MovimentacaoEstoqueProduto](
 													IdEstoqueProduto INT NOT NULL,
 													DataMovimentacao DATETIME NOT NULL,
 													Quantidade SMALLINT
-													CONSTRAINT fk_MovimentacaoEstoqueProduto_EstoqueProduto1
-														FOREIGN KEY (IdEstoqueProduto)
-														REFERENCES [dbo].[EstoqueProduto] (IdProduto),
-													CONSTRAINT fk_MovimentacaoEstoqueProduto_TipoMovimentacao1
+													CONSTRAINT fk_IdTipoMovimentacao_MovimentacaoEstoqueProduto
 														FOREIGN KEY (idTipoMovimentacao)
-														REFERENCES [dbo].[TipoMovimentacao] (Id)
+														REFERENCES [dbo].[TipoMovimentacao] (Id),
+													CONSTRAINT fk_IdEstoqueProduto_MovimentacaoEstoqueProduto
+														FOREIGN KEY (IdEstoqueProduto)
+														REFERENCES [dbo].[EstoqueProduto] (IdProduto)
 												);
 GO
 
@@ -96,7 +96,7 @@ CREATE TABLE [dbo].[EstoqueMateriaPrima]	(
 												QuantidadeFisica INT NOT NULL,
 												QuantidadeMinima INT NOT NULL
 
-												CONSTRAINT fk_EstoqueMateriaPrima_MateriaPrima1
+												CONSTRAINT fk_IdMateriaPrima_EstoqueMateriaPrima
 													FOREIGN KEY (IdMateriaPrima)
 													REFERENCES [dbo].[MateriaPrima] (Id)
 											);
@@ -111,12 +111,12 @@ CREATE TABLE [dbo].[MovimentacaoEstoqueMateriaPrima]	(
 															IdEstoqueMateriaPrima INT NOT NULL,
 															DataMovimentacao DATETIME NOT NULL,
 															Quantidade SMALLINT
-															CONSTRAINT fk_MovimentacaoEstoqueMateriaPrima_EstoqueMateriaPrima1
-																FOREIGN KEY (IdEstoqueMateriaPrima)
-																REFERENCES [dbo].[EstoqueMateriaPrima] (IdMateriaPrima),
-															CONSTRAINT fk_MovimentacaoEstoqueMateriaPrima_TipoMovimentacao1
+															CONSTRAINT fk_IdTipoMovimentacao_MovimentacaoEstoqueMateriaPrima
 																FOREIGN KEY (idTipoMovimentacao)
-																REFERENCES [dbo].[TipoMovimentacao] (Id)
+																REFERENCES [dbo].[TipoMovimentacao] (Id),
+															CONSTRAINT fk_IdEstoqueMateriaPrima_MovimentacaoEstoqueMateriaPrima
+																FOREIGN KEY (IdEstoqueMateriaPrima)
+																REFERENCES [dbo].[EstoqueMateriaPrima] (IdMateriaPrima)
 														);
 GO
 
@@ -129,10 +129,10 @@ CREATE TABLE [dbo].[PedidoProduto]	(
 										IdProduto INT NOT NULL,
 										Quantidade SMALLINT NOT NULL
 
-										CONSTRAINT fk_Pedido_has_Produto_Pedido
+										CONSTRAINT fk_IdPedido_PedidoProduto
 											FOREIGN KEY (IdPedido)
 											REFERENCES [dbo].[Pedido] (Id),
-										CONSTRAINT fk_Pedido_has_Produto_Produto1
+										CONSTRAINT fk_IdProduto_PedidoProduto
 											FOREIGN KEY (IdProduto)
 											REFERENCES [dbo].[Produto] (Id)
 									);
@@ -148,7 +148,7 @@ CREATE TABLE [dbo].[EtapaProducao]	(
 										Duracao SMALLINT NOT NULL,
 										NumeroEtapa TINYINT NOT NULL,
 
-										CONSTRAINT fk_Etapa_Produto1
+										CONSTRAINT fk_IdProduto_EtapaProducao
 											FOREIGN KEY (IdProduto)
 											REFERENCES [dbo].[Produto] (Id)
 									);
@@ -162,10 +162,10 @@ CREATE TABLE [dbo].[Composicao]	(
 									IdMateriaPrima INT NOT NULL,
 									Quantidade INT NOT NULL,
 
-									CONSTRAINT fk_Produto_has_MateriaPrima_Produto1
+									CONSTRAINT fk_IdProduto_Composicao
 										FOREIGN KEY (IdProduto)
 										REFERENCES [dbo].[Produto] (Id),
-									CONSTRAINT fk_Produto_has_MateriaPrima_MateriaPrima1
+									CONSTRAINT fk_IdMateriaPrima_Composicao
 										FOREIGN KEY (IdMateriaPrima)
 										REFERENCES [dbo].[MateriaPrima] (Id)
 								);
@@ -182,10 +182,10 @@ CREATE TABLE [dbo].[Producao]	(
 									DataTermino DATETIME NULL,
 									Quantidade  SMALLINT NOT NULL,
 
-									CONSTRAINT fk_Producao_Etapa1
+									CONSTRAINT fk_IdEtapaProducao_Producao
 										FOREIGN KEY (IdEtapaProducao)
 										REFERENCES [dbo].[EtapaProducao] (Id),
-									CONSTRAINT fk_Producao_PedidoProduto1
+									CONSTRAINT fk_IdPedidoProduto_Producao
 										FOREIGN KEY (IdPedidoProduto)
 										REFERENCES [dbo].[PedidoProduto] (Id)
 								);
