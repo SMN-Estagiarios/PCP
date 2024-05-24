@@ -35,7 +35,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEtapaProducao]
 	END
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_CriarEtapaProducao]
+CREATE OR ALTER PROCEDURE [dbo].[SP_InserirEtapaProducao]
 	@IdProduto INT,
 	@Descricao VARCHAR(150),
 	@Duracao SMALLINT,
@@ -57,7 +57,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarEtapaProducao]
 							DECLARE	@Data_Inicial DATETIME = GETDATE(),
 									@Retorno INT
 							
-							EXEC @Retorno = [dbo].[SP_CriarEtapaProducao] 6, "Batendo bolo", 50, 1;
+							EXEC @Retorno = [dbo].[SP_InserirEtapaProducao] 6, "Batendo bolo", 50, 1;
 
 							SELECT 	@Retorno AS Retorno,
 									DATEDIFF(MILLISECOND, @Data_Inicial, GETDATE()) AS TempoExecucao;
@@ -122,6 +122,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarEtapaProducao]
 							SELECT *
 								FROM [dbo].[EtapaProducao] WITH(NOLOCK);
 						ROLLBACK TRAN
+		Retornos..........: 00 - Sucesso.
+							01 - Erro, produto inexistente.
+							02 - Erro, nao foi possivel inserir um registro na tabela.						
 	*/
 	BEGIN
 		-- Verificando se existe produto
