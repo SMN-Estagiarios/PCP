@@ -1,8 +1,8 @@
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueProduto]
-	@IdProduto INT = NULL,
-	@IdTipoMovimentacao TINYINT = NULL,
-	@DataAtual DATE= NULL,
-	@Quantidade INT = NULL
+	@IdProduto INT,
+	@IdTipoMovimentacao TINYINT,
+	@DataAtual DATE,
+	@Quantidade INT
 	AS
 	/*
 	Documentacao
