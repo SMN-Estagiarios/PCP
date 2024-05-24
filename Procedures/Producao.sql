@@ -1,17 +1,21 @@
-CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducao]	@Quantidade SMALLINT,
-														@IdEtapaProducao INT,
-														@IdPedidoProduto INT
+CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducaoDeEtapa]		@Quantidade SMALLINT,
+																@IdEtapaProducao INT,
+																@IdPedidoProduto INT
 
 	AS
 	/*
-		DocumentaÁ„o
+		DocumentaÔøΩÔøΩo
 			Arquivo fonte........: Producao.sql
 			Objetivo.............: Inserir novo registro em Producao marcando inicio de nova etapa de producao
 			Autor................: Gabriel Damiani Puccinelli
 			Data.................: 23/05/2024
 			Ex...................:	BEGIN TRAN
 
-										SELECT	*
+										SELECT	IdEtapaProducao,
+												IdPedidoProduto,
+												DataInicio,
+												DataTermino,
+												Quantidade
 											FROM Producao WITH(NOLOCK)
 
 										DBCC DROPCLEANBUFFERS
@@ -20,11 +24,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducao]	@Quantidade SMALLINT,
 										DECLARE	@Ret INT,
 												@DataInicio DATETIME = GETDATE()
 
-										EXEC @Ret = [dbo].[SP_IniciarProducao] 500, 1, 2
+										EXEC @Ret = [dbo].[SP_IniciarProducaoDeEtapa] 500, 1, 2
 
 										SELECT @Ret AS Retorno, DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 
-										SELECT	*
+										SELECT	IdEtapaProducao,
+												IdPedidoProduto,
+												DataInicio,
+												DataTermino,
+												Quantidade
 											FROM Producao WITH(NOLOCK)
 
 									ROLLBACK TRAN
@@ -36,13 +44,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducao]	@Quantidade SMALLINT,
 	END
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducao]	@IdProducao INT
+CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]	@IdProducao INT,
+																@Quantidade SMALLINT
 
 	AS
 	/*
-		DocumentaÁ„o
+		DocumentaÔøΩÔøΩo
 			Arquivo fonte........: Producao.sql
-			Objetivo.............: Aplicar data de tÈrmino no registro em Producao marcando termino de etapa de producao
+			Objetivo.............: Aplicar data de tÔøΩrmino no registro em Producao marcando termino de etapa de producao e 
+								   marcar quantidade produzida no termino da etapa.
 			Autor................: Gabriel Damiani Puccinelli
 			Data.................: 23/05/2024
 			Ex...................:	BEGIN TRAN
@@ -60,7 +70,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducao]	@IdProducao INT
 										DECLARE	@Ret INT,
 												@DataInicio DATETIME = GETDATE()
 
-										EXEC @Ret = [dbo].[SP_EncerrarProducao] 2
+										EXEC @Ret = [dbo].[SP_EncerrarProducaoDeEtapa] 2, 500
 
 										SELECT @Ret AS Retorno, DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 
@@ -72,6 +82,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducao]	@IdProducao INT
 													ON ep.Id = pd.IdEtapaProducao
 
 									ROLLBACK TRAN
+
+			Retornos.............:	0. SUCESSO
+									1. N√ÉO H√Å TEMPO H√ÅBIL PARA TER FINALIZADO
 	*/
 	BEGIN
 		--DECLARA VARIAVEIS
@@ -87,13 +100,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducao]	@IdProducao INT
 					ON ep.Id = pd.IdEtapaProducao
 			WHERE pd.Id = @IdProducao
 
-		--VERIFICA SE HOUVE TEMPO H¡BIL PARA TERMINAR A PRODUCAO
+		--VERIFICA SE HOUVE TEMPO HÔøΩBIL PARA TERMINAR A PRODUCAO
 		IF (DATEDIFF(MINUTE, @DataInicioProducao, @DataAtual) < @TempoProducao)
 			RETURN 1
 
 		--INSERE NOVO REGISTRO EM PRODUCAO
 		UPDATE Producao
-			SET DataTermino = @DataAtual
+			SET	DataTermino = @DataAtual,
+				Quantidade = @Quantidade
 			WHERE Id = @IdProducao
 
 		RETURN 0
