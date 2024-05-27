@@ -97,7 +97,7 @@ DROP PROCEDURE [dbo].[SP_InserirMateriaPrima]
 DROP PROCEDURE [dbo].[SP_ListarMateriaPrima]
 
 -- Drop Proc MovimentacaoEstoqueMateriaPrima
-DROP PROCEDURE [dbo].[SP_InsertMovimentacaoEstoqueMateriaPrima]
+DROP PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueMateriaPrima]
 DROP PROCEDURE [dbo].[SP_ListarMovimentacaoEstoqueMateriaPrima]
 
 -- Drop Proc MovimentacaoEstoqueProduto
@@ -130,8 +130,8 @@ DROP FUNCTION [dbo].[FNC_VerificarDuracaoEtapaProducao]
 -- Drop Trigger
 DROP TRIGGER [dbo].[TRG_AtualizarEstoqueMateriaPrima]
 DROP TRIGGER [dbo].[TRG_AtualizarEstoqueProduto]
-DROP TRIGGER [dbo].[dbo].[TRG_ChecarPerdaProducao]
+DROP TRIGGER [dbo].[TRG_ChecarPerdaProducao]
 DROP TRIGGER [dbo].[TRG_CompararEstoqueProdutoReal]
 DROP TRIGGER [dbo].[TRG_GerarEstoqueMateriaPrima]
 DROP TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
-DROP TRIGGER [dbo].[dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
+DROP TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
