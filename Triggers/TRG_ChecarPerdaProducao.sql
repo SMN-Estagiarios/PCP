@@ -45,11 +45,11 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarPerdaProducao]
                 INNER JOIN [dbo].[EtapaProducao] ep
                     ON Ep.Id = i.IdEtapaProducao
         
-        SELECT @QuantidadePerdida = Quantidade
+        SELECT @QuantidadeAntiga = Quantidade
             FROM Deleted
 
         --Checar se a quantidade do fim da produção é menor que a do início dela
-        IF @QuantidadeAtual < @QuantidadePerdida
+        IF @QuantidadeAtual < @QuantidadeAntiga
             BEGIN
 
                 --Calcular a quantidade perdida e atribuir valor à mensagem de erro
