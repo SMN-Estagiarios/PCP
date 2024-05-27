@@ -16,24 +16,34 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 									DBCC FREEPROCCACHE;
 
 									DECLARE @DATA_INI DATETIME = GETDATE();
-
-									SELECT * 
-										FROM [dbo].[EstoqueProduto]
-									SELECT * 
-										FROM [dbo].[MovimentacaoEstoqueProduto]
+									
+									SELECT Id,
+											IdTipoMovimentacao,
+											IdEstoqueProduto,
+											DataMovimentacao,
+											Quantidade
+										FROM [dbo].[movimentacaoestoqueproduto]	
+									
+									SELECT IdProduto,
+											QuantidadeFisica,
+											QuantidadeMinima 
+										FROM [dbo].[estoqueproduto]
 
 									UPDATE [dbo].[Pedido]
 										SET DataEntrega = GETDATE()
 										WHERE Id = 7
-									SELECT * 
-										FROM [dbo].[PedidoProduto]
-
-									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecucao
-
-									SELECT * 
-										FROM [dbo].[EstoqueProduto]
-									SELECT * 
-										FROM [dbo].[MovimentacaoEstoqueProduto]
+								
+									SELECT Id,
+										   IdTipoMovimentacao,
+										   IdEstoqueProduto,
+										   DataMovimentacao,
+										   Quantidade
+										FROM [dbo].[movimentacaoestoqueproduto]	
+										
+									SELECT IdProduto,
+										   QuantidadeFisica,
+										   QuantidadeMinima 
+										FROM [dbo].[estoqueproduto]
 								ROLLBACK TRAN					
 	*/
 	BEGIN
