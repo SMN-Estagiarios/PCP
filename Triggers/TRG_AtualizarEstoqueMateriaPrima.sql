@@ -13,12 +13,12 @@ FOR INSERT
 		Ex...................:  BEGIN TRAN
 									DBCC DROPCLEANBUFFERS;
 									DBCC FREEPROCCACHE;
-
+					
 									DECLARE @DataInicio DATETIME = GETDATE();
 
 									SELECT 	IdMateriaPrima,
-											QuantidadeFisica,
-											QuantidadeMinima
+										QuantidadeFisica,
+										QuantidadeMinima
 									FROM [dbo].[EstoqueMateriaPrima]
 
 									INSERT INTO [dbo].[MovimentacaoEstoqueMateriaPrima](
@@ -27,9 +27,9 @@ FOR INSERT
 																							DataMovimentacao,
 																							Quantidade
 																					   )
-										VALUES (3 , 1, GETDATE(), 20000)
-
-									SELECT DATEDIFF(MILLISECOND, @DataInicio,GETDATE()) AS TempoExecucao
+										VALUES  (3 , 1, GETDATE(), 15000 )
+												
+									SELECT DATEDIFF(MILLISECOND, @DataInicio ,GETDATE()) AS TempoExecucao
 
 									SELECT 	IdMateriaPrima,
 											QuantidadeFisica,
@@ -48,8 +48,8 @@ FOR INSERT
 			FROM [dbo].[EstoqueMateriaPrima] emp
 				INNER JOIN inserted i 
 					ON i.IdEstoqueMateriaPrima = emp.IdMateriaPrima
-
-			--Verificacao de erros
+		
+		--Verificacao de erros
 		IF @@ERROR <> 0 
 			BEGIN
 				RAISERROR('Não foi possivel atualizar o estoque da materia prima', 16,1);

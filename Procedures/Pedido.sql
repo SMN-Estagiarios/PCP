@@ -17,7 +17,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 											@DataInicio DATETIME = GETDATE(),
 											@DataPromessa DATE =  DATEADD(DAY, 10, GETDATE())
 
-									EXEC @Retorno = [dbo].[SP_InserirPedido] 1, @DataPromessa, N'	[	
+									EXEC @Retorno = [dbo].[SP_InserirPedido] 22, @DataPromessa, N'	[	
 																									{"IdProduto": 1, "Quantidade": 2},
 																									{"IdProduto": 2, "Quantidade": 5}
 																								]
@@ -349,11 +349,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 											DECLARE @DataInicio DATETIME = GETDATE(),
 													@RET INT
 											
-											SELECT * FROM EstoqueProduto
+											SELECT * FROM PedidoProduto WHERE IdPedido = 37
 				
-											EXEC @RET = [dbo].[SP_RealizarBaixaPedido]2
+											EXEC @RET = [dbo].[SP_RealizarBaixaPedido] 37
 										
-											SELECT * FROM EstoqueProduto
+											SELECT * FROM PedidoProduto  WHERE IdPedido = 37
 																	
 
 											SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo,
@@ -362,9 +362,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 			Retornos..............: 0 - Pedido entregue com sucesos
 									1 - Esse pedido não existe
 									2 - Esse pedido já foi finalizado
-									3 - Esse pedido possui uma produção de produto(s) em aberto
-									4 - Há itens desse pedido sem estoque suficiente.
-									5 - Houve um erro ao atualizar a data de entrega do pedido para hoje.
+									3 - Há itens desse pedido sem estoque suficiente.
+									4 - Houve um erro ao atualizar a data de entrega do pedido para hoje.
 	*/
 	BEGIN
 		-- Declaracao de variáveis 
@@ -388,15 +387,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 				RETURN 2
 			END
 		
-		-- Verificar se o pedido possui produção de produtos em aberto
-		IF EXISTS (
-					SELECT TOP 1 1
-						FROM FNC_ListarPedidosEmProducao(@IdPedido) 
-				  )
-			BEGIN
-				RETURN 3
-			END
-
 		-- Verificar se possui estoque para finalizar o pedido
 		IF EXISTS (
 					SELECT 
@@ -409,7 +399,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 								  AND pp.Quantidade > ep.QuantidadeFisica 
 				  )
 			BEGIN
-				RETURN 4
+				RETURN 3
 			END
 			   
 		--realizar a atualização do registro do pedido para dar baixa 
@@ -419,7 +409,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 
 		--Verifica se o registro foi atualizado	
 		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
-			RETURN 5
+			RETURN 4
 
 		RETURN 0
 	END
