@@ -56,7 +56,6 @@ DROP CONSTRAINT fk_IdPedidoProduto_Producao;
 GO
 
 -- Drop de tabelas
-
 DROP TABLE [dbo].[Cliente]
 DROP TABLE [dbo].[Composicao]
 DROP TABLE [dbo].[EstoqueProduto]
@@ -71,8 +70,68 @@ DROP TABLE [dbo].[Producao]
 DROP TABLE [dbo].[Produto]
 DROP TABLE [dbo].[TipoMovimentacao]
 
--- Drop de procedures
-
+-- Drop de procedures Pedido
 DROP PROCEDURE [dbo].[SP_InserirPedido]
 DROP PROCEDURE [dbo].[SP_ListarPedidos]
 DROP PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
+
+-- Drop Proc Cliente
+DROP PROCEDURE [dbo].[SP_ListarClientes]
+DROP PROCEDURE [dbo].[SP_InserirCliente]
+DROP PROCEDURE [dbo].[SP_AtualizarCliente]
+
+-- Drop Proc Composicao
+DROP PROCEDURE [dbo].[SP_InserirNovaComposicao]
+DROP PROCEDURE [dbo].[SP_ListarComposicao]
+
+-- Drop Proc EstoqueProduto
+DROP PROCEDURE [dbo].[SP_AtualizarEstoqueProduto]
+
+-- Drop Proc EtapaProducao
+DROP PROCEDURE [dbo].[SP_ListarEtapaProducao]
+DROP PROCEDURE [dbo].[SP_InserirEtapaProducao]
+DROP PROCEDURE [dbo].[SP_AtualizarEtapaProducao]
+
+-- Drop Proc MateriaPrima
+DROP PROCEDURE [dbo].[SP_InserirMateriaPrima]
+DROP PROCEDURE [dbo].[SP_ListarMateriaPrima]
+
+-- Drop Proc MovimentacaoEstoqueMateriaPrima
+DROP PROCEDURE [dbo].[SP_InsertMovimentacaoEstoqueMateriaPrima]
+DROP PROCEDURE [dbo].[SP_ListarMovimentacaoEstoqueMateriaPrima]
+
+-- Drop Proc MovimentacaoEstoqueProduto
+DROP PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueProduto]
+DROP PROCEDURE [dbo].[SP_ListarMovimentacaoEstoqueProduto]
+
+-- Drop Proc MovimentacaoEstoquePedido
+DROP PROCEDURE [dbo].[SP_InserirPedido]
+DROP PROCEDURE [dbo].[SP_ListarPedidos]
+DROP PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
+DROP PROCEDURE [dbo].[SP_ListarPedidosEmProducao]
+DROP PROCEDURE [dbo].[SP_ListarPedidosCompletos]
+DROP PROCEDURE [dbo].[SP_RealizarBaixaPedido]
+
+-- Drop Proc Producao
+DROP PROCEDURE [dbo].[SP_IniciarProducaoDeEtapa]
+DROP PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]
+
+-- Drop Proc Produto
+DROP PROCEDURE [dbo].[SP_InserirProduto]
+DROP PROCEDURE [dbo].[SP_ListarProduto]
+
+-- Drop Functions
+DROP FUNCTION [dbo].[FNC_CalcularEstoqueReal]
+DROP FUNCTION [dbo].[FNC_CalcularEstoqueVirtual]
+DROP FUNCTION [dbo].[FNC_CalcularTempoProducaoProduto]
+DROP FUNCTION [dbo].[FNC_ChecarEstoqueProduto]
+DROP FUNCTION [dbo].[FNC_VerificarDuracaoEtapaProducao]
+
+-- Drop Trigger
+DROP TRIGGER [dbo].[TRG_AtualizarEstoqueMateriaPrima]
+DROP TRIGGER [dbo].[TRG_AtualizarEstoqueProduto]
+DROP TRIGGER [dbo].[dbo].[TRG_ChecarPerdaProducao]
+DROP TRIGGER [dbo].[TRG_CompararEstoqueProdutoReal]
+DROP TRIGGER [dbo].[TRG_GerarEstoqueMateriaPrima]
+DROP TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
+DROP TRIGGER [dbo].[dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
