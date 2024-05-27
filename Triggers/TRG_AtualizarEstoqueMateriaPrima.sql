@@ -14,11 +14,11 @@ FOR INSERT
 									DBCC DROPCLEANBUFFERS;
 									DBCC FREEPROCCACHE;
 
-									DECLARE @DATA_INI DATETIME = GETDATE();
+									DECLARE @DataInicio DATETIME = GETDATE();
 
-									SELECT 	IdMateriaPrima
-										QuantidadeFisica
-										QuantidadeMinima
+									SELECT 	IdMateriaPrima,
+											QuantidadeFisica,
+											QuantidadeMinima
 									FROM [dbo].[EstoqueMateriaPrima]
 
 									INSERT INTO [dbo].[MovimentacaoEstoqueMateriaPrima](
@@ -27,12 +27,12 @@ FOR INSERT
 																							DataMovimentacao,
 																							Quantidade
 																					   )
-										VALUES (3 , 1, GETDATE(), 20000 )
+										VALUES (3 , 1, GETDATE(), 20000)
 
-									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecucao
+									SELECT DATEDIFF(MILLISECOND, @DataInicio,GETDATE()) AS TempoExecucao
 
-									SELECT 	IdMateriaPrima
-											QuantidadeFisica
+									SELECT 	IdMateriaPrima,
+											QuantidadeFisica,
 											QuantidadeMinima
 										FROM [dbo].[EstoqueMateriaPrima]
 

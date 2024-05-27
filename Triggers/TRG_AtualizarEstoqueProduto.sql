@@ -15,43 +15,43 @@ FOR INSERT
 									DBCC DROPCLEANBUFFERS;
 									DBCC FREEPROCCACHE;
 
-									DECLARE @DATA_INI DATETIME = GETDATE();
+									DECLARE @DataInicio DATETIME = GETDATE();
 
 									SELECT Id,
 										   IdTipoMovimentacao,
 										   IdEstoqueProduto,
 										   DataMovimentacao,
 										   Quantidade
-										FROM [dbo].[movimentacaoestoqueproduto]	
+										FROM [dbo].[MovimentacaoEstoqueProduto]	
 										
 									SELECT IdProduto,
 										   QuantidadeFisica,
 										   QuantidadeMinima 
-										FROM [dbo].[estoqueprodutoduto] 
+										FROM [dbo].[EstoqueProduto] 
 
-									INSERT INTO [dbo].[MovimentacaoEstoqueProduto](
-																							IdTipoMovimentacao,
-																							IdEstoqueProduto,
-																							DataMovimentacao,
-																							Quantidade
-																					   )
-										VALUES (2 , 1, GETDATE(), 100 )
+									INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(
+																						IdTipoMovimentacao,
+																						IdEstoqueProduto,
+																						DataMovimentacao,
+																						Quantidade
+																					)
+										VALUES (2, 1, GETDATE(), 100)
 
-									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecucao
+									SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao
 
 									SELECT Id,
 										   IdTipoMovimentacao,
 										   IdEstoqueProduto,
 										   DataMovimentacao,
 										   Quantidade
-										FROM [dbo].[movimentacaoestoqueproduto]	
+										FROM [dbo].[MovimentacaoEstoqueProduto]
 										
 									SELECT IdProduto,
 										   QuantidadeFisica,
 										   QuantidadeMinima 
-										FROM [dbo].[estoqueproduto]
+										FROM [dbo].[EstoqueProduto] 
 
-								ROLLBACK TRAN					
+								ROLLBACK TRAN				
 	*/
 	BEGIN
 		

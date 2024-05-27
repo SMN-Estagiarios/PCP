@@ -17,7 +17,7 @@ AS
 										EXEC [dbo].[SP_ListarClientes] 1
 
 										SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo
-								   ROLLBACK
+								   ROLLBACK TRAN
 		*/
 	BEGIN
 		-- Selecionando as informacoes de um ou todos os clientes
