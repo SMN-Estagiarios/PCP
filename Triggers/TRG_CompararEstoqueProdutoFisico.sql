@@ -9,7 +9,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_CompararEstoqueProdutoReal]
                                 Caso o estoque real esteja menor, haverá um aviso para gerar mais estoque
         Autor.................: João Victor Maia, Adriel Alexsander, Olívio Freitas
         Data..................: 24/05/2024
-        Exemplo...............: BEGIN TRAN
+        Exemplo...............: BEGIN TRAN 
                                     UPDATE [dbo].[EstoqueProduto]
                                         SET QuantidadeFisica = 0
                                 ROLLBACK TRAN
@@ -28,7 +28,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_CompararEstoqueProdutoReal]
                 @QuantidadeMinima = QuantidadeMinima
             FROM Inserted
 
-        --Atribuir valor ao EstoqueReal
+        --Atribuir valor do EstoqueReal
         SELECT  @EstoqueReal = [dbo].[FNC_CalcularEstoqueReal] (@IdProduto)
 
         SET @Erro = CONCAT('O estoque real do produto de Id ', @IdProduto, ' está menor que o estoque mínimo.') 

@@ -24,7 +24,6 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 										UPDATE Producao
 											SET DataTermino = GETDATE()
 												WHERE Id IN(17) 
-										
 
 										SELECT Id,
 											   IdTipoMovimentacao,

@@ -17,9 +17,17 @@ FOR INSERT
 
 									DECLARE @DATA_INI DATETIME = GETDATE();
 
-									SELECT * FROM [dbo].[EstoqueProduto]
-
-									SELECT * FROM [dbo].[MovimentacaoEstoqueProduto]
+									SELECT Id,
+										   IdTipoMovimentacao,
+										   IdEstoqueProduto,
+										   DataMovimentacao,
+										   Quantidade
+										FROM [dbo].[movimentacaoestoqueproduto]	
+										
+									SELECT IdProduto,
+										   QuantidadeFisica,
+										   QuantidadeMinima 
+										FROM [dbo].[estoqueprodutoduto] 
 
 									INSERT INTO [dbo].[MovimentacaoEstoqueProduto](
 																							IdTipoMovimentacao,
@@ -31,9 +39,17 @@ FOR INSERT
 
 									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecucao
 
-									SELECT * FROM [dbo].[MovimentacaoEstoqueProduto]
-
-									SELECT * FROM [dbo].[EstoqueProduto]
+									SELECT Id,
+										   IdTipoMovimentacao,
+										   IdEstoqueProduto,
+										   DataMovimentacao,
+										   Quantidade
+										FROM [dbo].[movimentacaoestoqueproduto]	
+										
+									SELECT IdProduto,
+										   QuantidadeFisica,
+										   QuantidadeMinima 
+										FROM [dbo].[estoqueproduto]
 
 								ROLLBACK TRAN					
 	*/
