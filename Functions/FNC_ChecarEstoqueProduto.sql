@@ -1,4 +1,4 @@
-CREATE OR ALTER FUNCTION [dbo].[FNC_ChecagemEstoqueProduto]	(
+CREATE OR ALTER FUNCTION [dbo].[FNC_ChecarEstoqueProduto]	(
 																@IdProduto INT,
 																@Quantidade INT
 															)
@@ -6,7 +6,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_ChecagemEstoqueProduto]	(
 	AS
 	/*
 	Documentacao
-	Arquivo Fonte.....: FNC_ChecagemEstoqueProduto.sql
+	Arquivo Fonte.....: FNC_ChecarEstoqueProduto.sql
 	Objetivo..........: Verifica o estoque do produto passado por parametro e retorna TRUE(1) ou FALSE(0)
 	Autor.............: Olivio Freitas
 	Data..............: 22/05/2024
@@ -16,7 +16,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_ChecagemEstoqueProduto]	(
 						DECLARE @IdProduto INT = 1, --------------------> Alterar o Id do produto por aqui
 								@DataInicio DATETIME = GETDATE()
 
-						SELECT [dbo].[FNC_ChecagemEstoqueProduto] (@IdProduto, 1);
+						SELECT [dbo].[FNC_ChecarEstoqueProduto] (@IdProduto, 1);
 
 						SELECT *
 							FROM [dbo].[Produto] pr WITH(NOLOCK)
