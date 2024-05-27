@@ -930,6 +930,6 @@ GO
 
 -- Quarto Pedido do cliente [Nome do Cliente] - Garrafa PET reciclada
 INSERT INTO [dbo].[MovimentacaoEstoqueProduto] (idTipoMovimentacao, IdEstoqueProduto, DataMovimentacao, Quantidade) 
-	VALUES	(2, 30, '30/08/2024 12:00:00', 200); 
+	VALUES	(2, 30, '30-08-2024 12:00:00', 200); 
 
 GO
