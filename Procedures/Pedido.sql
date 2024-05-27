@@ -17,20 +17,25 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 											@DataInicio DATETIME = GETDATE(),
 											@DataPromessa DATE =  DATEADD(DAY, 10, GETDATE())
 
-									EXEC @Retorno = [dbo].[SP_InserirPedido] 1, @DataPromessa, N'	[	
-																									{"IdProduto": 1, "Quantidade": 2},
-																									{"IdProduto": 2, "Quantidade": 5}
-																								]
-																							'
+									EXEC @Retorno = [dbo].[SP_InserirPedido] 20, @DataPromessa, N'	[	
+																										{"IdProduto": 1, "Quantidade": 2},
+																										{"IdProduto": 2, "Quantidade": 5}
+																									]
+																								'
 
 									SELECT	@Retorno AS Retorno,
 											DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 
-									SELECT	*
+									SELECT	IdCliente,
+											DataPedido,
+											DataPromessa,
+											DataEntrega
 										FROM [dbo].[Pedido] WITH(NOLOCK)
 										WHERE Id = IDENT_CURRENT('Pedido')
 
-									SELECT	*
+									SELECT	IdPedido,
+											IdProduto,
+											Quantidade
 										FROM [dbo].[PedidoProduto] WITH(NOLOCK)
 										WHERE IdPedido = IDENT_CURRENT('Pedido')
 								ROLLBACK TRAN
