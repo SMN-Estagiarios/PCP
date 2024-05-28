@@ -76,7 +76,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                     i.Quantidade * c.Quantidade - emp.QuantidadeFisica AS QuantidadeFaltante --Calcular o que será usado menos o que ja tem no estoque
                 FROM Inserted i
                     INNER JOIN [dbo].[EtapaProducao] ep WITH(NOLOCK)
-                        ON i.IdEtapaProducao = ep.Id 
+                        ON i.IdEtapaProducao = ep.Id
                     INNER JOIN [dbo].[Composicao] c WITH(NOLOCK)
                         ON ep.IdProduto = c.IdProduto
                     INNER JOIN [dbo].[EstoqueMateriaPrima] emp WITH(NOLOCK)
@@ -94,16 +94,6 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                                 @QuantidadeNecessaria = QuantidadeNecessaria
                     FROM #MateriaPrima
 
-                --Checar se a quantidade de matéria prima necessária é maior que a do estoque
-                IF @QuantidadeFaltante > 0
-                    BEGIN
-
-                        --Inserir movimentação de adição da matéria prima do faltante somado ao estoque mínimo
-                        EXEC [dbo].[SP_InserirMovimentacaoEstoqueMateriaPrima]  @IdMateriaPrima,
-                                                                                1,
-                                                                                @QuantidadeFaltante,
-                                                                                NULL
-                    END
 
                 --Inserir movimentação de subtração da matéria prima necessária para a produção
                 EXEC [dbo].[SP_InserirMovimentacaoEstoqueMateriaPrima]  @IdMateriaPrima,

@@ -338,7 +338,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 	END
  GO
 
- CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarBaixaPedido]
+  CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarBaixaPedido]
 	@IdPedido INT
 	AS
 	/*
@@ -354,42 +354,45 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 											DECLARE @DataInicio DATETIME = GETDATE(),
 													@RET INT
 											
-											SELECT * FROM EstoqueProduto
+											SELECT * FROM PedidoProduto WHERE IdPedido = 37
 				
-											EXEC @RET = [dbo].[SP_RealizarBaixaPedido]7
+											EXEC @RET = [dbo].[SP_RealizarBaixaPedido] 37
 										
-											SELECT * FROM EstoqueProduto
+											SELECT * FROM PedidoProduto  WHERE IdPedido = 37
 																	
 
 											SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo,
 												@RET 
-				
-				
-
 									ROLLBACK TRAN 
+			Retornos..............: 0 - Pedido entregue com sucesos
+									1 - Esse pedido não existe
+									2 - Esse pedido já foi finalizado
+									3 - Há itens desse pedido sem estoque suficiente.
+									4 - Houve um erro ao atualizar a data de entrega do pedido para hoje.
 	*/
 	BEGIN
-		--Declaracao de variáveis 
+		-- Declaracao de variáveis 
 		DECLARE @DataAtual DATE = GETDATE(),
 			    @DataEntrega DATE
 				
-		
 		SELECT @IdPedido = Id,
 			   @DataEntrega = DataEntrega
 			FROM [dbo].[Pedido] WITH(NOLOCK)
 			WHERE Id = @IdPedido
 	
-		--verificar se o pedido existe 
+		-- Verificar se o pedido existe 
 		IF @IdPedido IS NULL 
 			BEGIN
 				RETURN 1
 			END
-		--verificar se o pedido ja foi finalizado 
+
+		-- Verificar se o pedido ja foi finalizado 
 		IF @DataEntrega IS NOT NULL
 			BEGIN 
 				RETURN 2
 			END
-		--verificar se possui estoque para finalizar o pedido
+		
+		-- Verificar se possui estoque para finalizar o pedido
 		IF EXISTS (
 					SELECT 
 						ep.QuantidadeFisica,
@@ -408,6 +411,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 		UPDATE Pedido
 			SET DataEntrega = GETDATE()
 				WHERE Id = @IdPedido
+
 		--Verifica se o registro foi atualizado	
 		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 			RETURN 4

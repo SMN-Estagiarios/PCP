@@ -1,9 +1,9 @@
-CREATE OR ALTER FUNCTION [dbo].[FNC_DuracaoEtapaProducao](@Id INT)
+CREATE OR ALTER FUNCTION [dbo].[FNC_VerificarDuracaoEtapaProducao](@Id INT)
 	 RETURNS SMALLINT
 	 AS 
 	 /*
 		Documentacao
-		Arquivo Fonte.........:	FNC_DuracaoEtapaProducao.sql
+		Arquivo Fonte.........:	FNC_VerificarDuracaoEtapaProducao.sql
 		Objetivo..............:	Funcao para retornar a duracao de uma etapa de producao
 		Autor.................:	OrcinoNeto
  		Data..................:	21/05/2024
@@ -12,8 +12,8 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_DuracaoEtapaProducao](@Id INT)
 								
 								DECLARE @Data_Inicio DATETIME = GETDATE();
 
-								SELECT	[dbo].[FNC_DuracaoEtapaProducao](2) AS Resultado,
-										DATEDIFF(millisecond, @Data_Inicio, GETDATE()) AS Tempo
+								SELECT	[dbo].[FNC_VerificarDuracaoEtapaProducao](2) AS Resultado,
+										DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo
 	*/
 	BEGIN
 		--Declarar variaveis

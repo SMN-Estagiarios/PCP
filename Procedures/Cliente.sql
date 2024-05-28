@@ -17,7 +17,7 @@ AS
 										EXEC [dbo].[SP_ListarClientes] 1
 
 										SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo
-								   ROLLBACK
+								   ROLLBACK TRAN
 		*/
 	BEGIN
 		-- Selecionando as informacoes de um ou todos os clientes
@@ -49,7 +49,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirCliente]
 								DECLARE @Data_Inicio DATETIME = GETDATE(),
 										@Retorno INT;
 
-								EXEC @Retorno = [dbo].[SP_InserirCliente] 'Gustavo'
+								EXEC @Retorno = [dbo].[SP_InserirCliente] 'Gustavo Targino'
 
 								SELECT 	@Retorno AS Retorno,
 										DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo;

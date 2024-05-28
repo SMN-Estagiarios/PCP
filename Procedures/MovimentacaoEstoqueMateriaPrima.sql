@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE [dbo].[SP_InsertMovimentacaoEstoqueMateriaPrima]
+CREATE OR ALTER PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueMateriaPrima]
 	@IdMateriaPrima INT = NULL,
 	@IdTipoMovimentacao INT = NULL,
 	@Quantidade INT = NULL,
@@ -21,7 +21,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InsertMovimentacaoEstoqueMateriaPrima]
 								DECLARE @Data_Inicio DATETIME = GETDATE(),
 										@Retorno INT;
 
-								EXEC @Retorno = [dbo].[SP_InsertMovimentacaoEstoqueMateriaPrima] 38, 1, 1
+								EXEC @Retorno = [dbo].[SP_InserirMovimentacaoEstoqueMateriaPrima] 38, 1, 1
 
 								SELECT	@Retorno AS Retorno,
 										DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE());
@@ -81,7 +81,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarMovimentacaoEstoqueMateriaPrima]
 	AS
 	/*
 		Documentacao
-		Arquivo Fonte.....: movimentacaoestoquemateriaprima.sql
+		Arquivo Fonte.....: MovimentacaoEstoqueMateriaPrima.sql
 		Objetivo..........: Listar um ou varios registros da tabela de movimentacao estoque de materia prima.
 		Autor.............: Odlavir Florentino
 		Data..............: 22/05/2024

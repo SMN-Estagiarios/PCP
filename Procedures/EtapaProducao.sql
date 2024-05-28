@@ -3,7 +3,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEtapaProducao]
 	AS
 	/*
 	Documentacao
-	Arquivo Fonte.....: EtapasProducao.sql
+	Arquivo Fonte.....: EtapaProducao.sql
 	Autor.............: Orcino Neto
 	Objetivo..........: Listar etapas de producao do produtos de um pedido.
 	Data..............: 21/05/2024
@@ -43,7 +43,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirEtapaProducao]
 	AS
 	/*
 	Documentacao
-	Arquivo Fonte.....: EtapasProducao.sql
+	Arquivo Fonte.....: EtapaProducao.sql
 	Autor.............: Orcino Neto
 	Objetivo..........: Criar etapas de producao para um produto.
 	Data..............: 23/05/2024
@@ -100,7 +100,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarEtapaProducao]
 	AS
 	/*
 	Documentacao
-	Arquivo Fonte.....: EtapasProducao.sql
+	Arquivo Fonte.....: EtapaProducao.sql
 	Autor.............: Orcino Neto
 	Objetivo..........: Atualizar etapas de producao para um produto.
 	Data..............: 23/05/2024
