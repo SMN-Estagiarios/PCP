@@ -58,6 +58,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarPerdaProducao]
                 
                 --Enviar erro
                 RAISERROR(@Erro, 16, 1)
+                RETURN;
             END
     END
 GO
