@@ -55,7 +55,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
         IF NOT EXISTS   (SELECT TOP 1 1
                             FROM Inserted i
                                 INNER JOIN [dbo].[EtapaProducao] ep WITH(NOLOCK)
-                                    ON i.EtapaProducao = ep.Id
+                                    ON i.IdEtapaProducao = ep.Id
                             WHERE ep.NumeroEtapa = 1
                         )
             BEGIN
