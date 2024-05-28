@@ -16,7 +16,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueReal]	(
 
 						DECLARE @DataInicio DATETIME = GETDATE();
 
-						SELECT [dbo].[FNC_CalcularEstoqueReal](1) AS EstoqueReal;
+						SELECT [dbo].[FNC_CalcularEstoqueReal](2) AS EstoqueReal;
 
 						SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao;
 	*/
@@ -28,7 +28,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueReal]	(
 				@EstoqueComprometido INT,
 				@Resultado INT;
 
-		-- Capturar a somatória da quantidade do produto em pedidos que ainda estao em aberto
+		-- Capturar a somatoria da quantidade do produto em pedidos que ainda estao em aberto
 		SELECT	@EstoqueComprometido = ISNULL(SUM(pp.Quantidade), 0)
 			FROM [dbo].[PedidoProduto] AS pp WITH(NOLOCK)
 				INNER JOIN [dbo].[Pedido] AS p WITH(NOLOCK)

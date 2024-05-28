@@ -352,19 +352,24 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 											DBCC DROPCLEANBUFFERS
 
 											DECLARE @DataInicio DATETIME = GETDATE(),
-													@RET INT
+													@Retorno INT,
+													@IdPedido INT = 7
 											
-											SELECT * FROM PedidoProduto WHERE IdPedido = 37
+											SELECT * FROM PedidoProduto WHERE IdPedido = @IdPedido
 				
-											EXEC @RET = [dbo].[SP_RealizarBaixaPedido] 37
-										
-											SELECT * FROM PedidoProduto  WHERE IdPedido = 37
-																	
+											EXEC @Retorno = [dbo].[SP_RealizarBaixaPedido] @IdPedido
+
+											SELECT * FROM Pedido WHERE Id = @IdPedido
+
+											SELECT * FROM PedidoProduto  WHERE IdPedido = @IdPedido
+
+											SELECT * FROM MovimentacaoEstoqueProduto WHERE IdEstoqueProduto = 1
 
 											SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo,
-												@RET 
+												@Retorno Retorno
+
 									ROLLBACK TRAN 
-			Retornos..............: 0 - Pedido entregue com sucesos
+			Retornos..............: 0 - Pedido entregue com sucesso
 									1 - Esse pedido não existe
 									2 - Esse pedido já foi finalizado
 									3 - Há itens desse pedido sem estoque suficiente.
@@ -375,13 +380,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 		DECLARE @DataAtual DATE = GETDATE(),
 			    @DataEntrega DATE
 				
-		SELECT @IdPedido = Id,
-			   @DataEntrega = DataEntrega
+		SELECT @DataEntrega = DataEntrega
 			FROM [dbo].[Pedido] WITH(NOLOCK)
 			WHERE Id = @IdPedido
-	
+
 		-- Verificar se o pedido existe 
-		IF @IdPedido IS NULL 
+		IF NOT EXISTS	(
+							SELECT TOP 1 1
+								FROM [dbo].[Pedido] WITH(NOLOCK)
+								WHERE Id = @IdPedido
+						)
 			BEGIN
 				RETURN 1
 			END
@@ -400,8 +408,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 						FROM [dbo].[EstoqueProduto] ep WITH(NOLOCK)
 							INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
 								ON pp.IdProduto = ep.IdProduto
-							WHERE pp.IdPedido = @IdPedido
-								  AND pp.Quantidade > ep.QuantidadeFisica 
+						WHERE pp.IdPedido = @IdPedido
+								AND pp.Quantidade > ep.QuantidadeFisica 
 				  )
 			BEGIN
 				RETURN 3
@@ -410,7 +418,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 		--realizar a atualização do registro do pedido para dar baixa 
 		UPDATE Pedido
 			SET DataEntrega = GETDATE()
-				WHERE Id = @IdPedido
+			WHERE Id = @IdPedido
 
 		--Verifica se o registro foi atualizado	
 		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1

@@ -14,28 +14,32 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 											   IdEstoqueProduto,
 											   DataMovimentacao,
 											   Quantidade
-											FROM [dbo].[movimentacaoestoqueproduto]	
+											FROM [dbo].[movimentacaoestoqueproduto]	where idestoqueproduto = 1
 										
 										SELECT IdProduto,
 											   QuantidadeFisica,
 											   QuantidadeMinima 
-											FROM [dbo].[estoqueproduto]
+											FROM [dbo].[estoqueproduto] where idproduto = 1
 										
 										UPDATE Producao
 											SET DataTermino = GETDATE()
-												WHERE Id IN(17) 
+												WHERE Id IN(8) 
+
+										UPDATE Producao
+											SET DataTermino = GETDATE()
+												WHERE Id IN(8)
 
 										SELECT Id,
 											   IdTipoMovimentacao,
 											   IdEstoqueProduto,
 											   DataMovimentacao,
 											   Quantidade
-											FROM [dbo].[movimentacaoestoqueproduto]	
+											FROM [dbo].[movimentacaoestoqueproduto]	where idestoqueproduto = 1
 										
 										SELECT IdProduto,
 											   QuantidadeFisica,
 											   QuantidadeMinima 
-											FROM [dbo].[estoqueproduto]
+											FROM [dbo].[estoqueproduto] where idproduto = 1
 
 								 ROLLBACK TRAN
 	*/
@@ -59,9 +63,12 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
                         ON I.IdEtapaProducao = ep.Id
                     INNER JOIN EtapaMaxima em
                         ON ep.IdProduto = em.IdProduto
+					INNER JOIN DELETED d
+						ON d.Id = i.Id
                 WHERE ep.NumeroEtapa = em.EtapaFinal 
 						  AND I.DataTermino IS NOT NULL
-		
+						  AND d.DataTermino IS NULL
+						  
 		--validacao de erros 
 		IF @@ERROR <> 0
 			BEGIN

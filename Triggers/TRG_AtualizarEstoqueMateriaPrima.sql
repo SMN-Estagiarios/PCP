@@ -19,7 +19,7 @@ FOR INSERT
 									SELECT 	IdMateriaPrima,
 										QuantidadeFisica,
 										QuantidadeMinima
-									FROM [dbo].[EstoqueMateriaPrima]
+									FROM [dbo].[EstoqueMateriaPrima] WITH(NOLOCK)
 
 									INSERT INTO [dbo].[MovimentacaoEstoqueMateriaPrima](
 																							idTipoMovimentacao,
@@ -31,10 +31,13 @@ FOR INSERT
 												
 									SELECT DATEDIFF(MILLISECOND, @DataInicio ,GETDATE()) AS TempoExecucao
 
+									SELECT * 
+										FROM [dbo].[MovimentacaoEstoqueMateriaPrima] WITH(NOLOCK)
+
 									SELECT 	IdMateriaPrima,
 											QuantidadeFisica,
 											QuantidadeMinima
-										FROM [dbo].[EstoqueMateriaPrima]
+										FROM [dbo].[EstoqueMateriaPrima] WITH(NOLOCK)
 
 								ROLLBACK TRAN					
 	*/

@@ -1,7 +1,7 @@
-CREATE OR ALTER  PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueProduto]
+CREATE OR ALTER PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueProduto]
 	@IdProduto INT,
 	@IdTipoMovimentacao TINYINT,
-	@DataAtual DATE,
+	@DataAtual DATETIME,
 	@Quantidade INT
 	AS
 	/*
@@ -21,7 +21,7 @@ CREATE OR ALTER  PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueProduto]
 							DECLARE @Data_Inicio DATETIME = GETDATE(),
 									@Retorno INT;
 							
-							EXEC @Retorno = [dbo].[SP_InserirMovimentacaoEstoqueProduto] 1, 1, NULL, 1;
+							EXEC @Retorno = [dbo].[SP_InserirMovimentacaoEstoqueProduto] 1, 1, NULL, 40;
 							
 							SELECT	@Retorno AS Retorno,
 									DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo;

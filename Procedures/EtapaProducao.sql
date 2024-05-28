@@ -64,6 +64,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirEtapaProducao]
 
 							SELECT *
 								FROM [dbo].[EtapaProducao] WITH(NOLOCK);
+
 						ROLLBACK TRAN
 
 	Retornos..........: 00 - Sucesso.
