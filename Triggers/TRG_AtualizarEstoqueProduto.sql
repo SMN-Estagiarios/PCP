@@ -19,39 +19,39 @@ FOR INSERT
 
 									SELECT Id,
 										   IdTipoMovimentacao,
-										   IdEstoqueProduto,
+										   IdEstoqueProduto,                                  
 										   DataMovimentacao,
 										   Quantidade
-										FROM [dbo].[MovimentacaoEstoqueProduto]	
+										FROM [dbo].[movimentacaoestoqueproduto]	
 										
 									SELECT IdProduto,
 										   QuantidadeFisica,
 										   QuantidadeMinima 
-										FROM [dbo].[EstoqueProduto] 
+										FROM [dbo].[Estoqueproduto] 
 
-									INSERT INTO [dbo].[MovimentacaoEstoqueProduto]	(
-																						IdTipoMovimentacao,
-																						IdEstoqueProduto,
-																						DataMovimentacao,
-																						Quantidade
-																					)
-										VALUES (2, 1, GETDATE(), 100)
+									INSERT INTO [dbo].[MovimentacaoEstoqueProduto](
+																							IdTipoMovimentacao,
+																							IdEstoqueProduto,
+																							DataMovimentacao,
+																							Quantidade
+																					   )
+										VALUES (2 , 1, GETDATE(), 100 )
 
-									SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao
+									SELECT DATEDIFF(MILLISECOND, @DataInicio,GETDATE()) AS TempoExecucao
 
 									SELECT Id,
 										   IdTipoMovimentacao,
 										   IdEstoqueProduto,
 										   DataMovimentacao,
 										   Quantidade
-										FROM [dbo].[MovimentacaoEstoqueProduto]
+										FROM [dbo].[Movimentacaoestoqueproduto]	
 										
 									SELECT IdProduto,
 										   QuantidadeFisica,
 										   QuantidadeMinima 
-										FROM [dbo].[EstoqueProduto] 
+										FROM [dbo].[estoqueproduto]
 
-								ROLLBACK TRAN				
+								ROLLBACK TRAN					
 	*/
 	BEGIN
 		

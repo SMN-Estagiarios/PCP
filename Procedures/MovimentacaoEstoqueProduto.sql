@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueProduto]
+CREATE OR ALTER  PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueProduto]
 	@IdProduto INT,
 	@IdTipoMovimentacao TINYINT,
 	@DataAtual DATE,

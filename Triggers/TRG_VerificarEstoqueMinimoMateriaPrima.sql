@@ -12,9 +12,9 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_VerificarEstoqueMinimoMateriaPrima]
                                         
                                         DECLARE @DataInicio DATETIME = GETDATE()
 
-                                          SELECT *
-                                            FROM [dbo].[MovimentacaoEstoqueMateriaPrima] WITH(NOLOCK)
-                                                WHERE IdEstoqueMateriaPrima = 1
+                                        SELECT *
+                                        FROM [dbo].[MovimentacaoEstoqueMateriaPrima] WITH(NOLOCK)
+                                            WHERE IdEstoqueMateriaPrima = 1
                                         
                                         SELECT *
                                             FROM [dbo].[EstoqueMateriaPrima] WITH(NOLOCK)
