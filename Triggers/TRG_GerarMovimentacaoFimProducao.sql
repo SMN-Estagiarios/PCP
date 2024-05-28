@@ -42,21 +42,27 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 	*/
 	BEGIN
 		-- Insercao na tabela de MovimentacaoEstoqueProduto para os produtos que foram entregues 
-		INSERT INTO MovimentacaoEstoqueProduto(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade)
-            SELECT ep.IdProduto,
-				   1 IdTipoMovimentacao,
-				   GETDATE() DataAtual,
-				   i.Quantidade
-				FROM inserted i WITH(NOLOCK)
+		WITH EtapaMaxima AS  (
+								 -- Capturar o valor máximo do número de etapa para o produto passado como parãmetro
+							  SELECT    IdProduto,
+										MAX(NumeroEtapa) AS EtapaFinal
+									FROM [dbo].[EtapaProducao] WITH(NOLOCK)
+									GROUP BY IdProduto
+						     )  
+			--realiza a inserção das etapas que foram finalizadas 
+        INSERT INTO MovimentacaoEstoqueProduto(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade)
+            SELECT  ep.IdProduto,
+                    1, --id travado em 1 = entrada para produtos que acabaram de ser produzidos
+                    GETDATE(),
+                    I.Quantidade
+                FROM INSERTED I
                     INNER JOIN [dbo].[EtapaProducao] ep WITH(NOLOCK)
-                        ON i.IdEtapaProducao = ep.Id
-				WHERE i.DataTermino IS NOT NULL
-				AND ep.NumeroEtapa = (
-										SELECT  MAX(ep.NumeroEtapa) AS EtapaFinal
-										FROM [dbo].[EtapaProducao] ep WITH(NOLOCK)
-										INNER JOIN inserted i
-										ON i.IdEtapaProducao = ep.Id
-									 )
+                        ON I.IdEtapaProducao = ep.Id
+                    INNER JOIN EtapaMaxima em
+                        ON ep.IdProduto = em.IdProduto
+                WHERE ep.NumeroEtapa = em.EtapaFinal 
+						  AND I.DataTermino IS NOT NULL
+		
 		--validacao de erros 
 		IF @@ERROR <> 0
 			BEGIN
