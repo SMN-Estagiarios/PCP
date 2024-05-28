@@ -14,20 +14,17 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                                     SELECT  c.IdProduto,
                                             c.Quantidade AS QuantidadeNecessaria,
                                             c.IdMateriaPrima,
-                                            emp.QuantidadeFisica
+                                            emp.QuantidadeFisica,
+                                            emp.QuantidadeMinima
                                         FROM [dbo].[Composicao] c WITH(NOLOCK)
                                             INNER JOIN [dbo].[EstoqueMateriaPrima] emp WITH(NOLOCK)
                                                 ON c.IdMateriaPrima = emp.IdMateriaPrima
-                                        WHERE IdProduto = 1
-
-                                    SELECT  IdEstoqueMateriaPrima,
-                                            Quantidade
-                                        FROM [dbo].[MovimentacaoEstoqueMateriaPrima] WITH(NOLOCK)
-                                        WHERE IdEstoqueMateriaPrima IN (1, 2, 3)
+                                        WHERE IdProduto IN (1,2)
 
                                     INSERT INTO [dbo].[Producao] (IdEtapaProducao, IdPedidoProduto, Quantidade, DataInicio, DataTermino)
-                                        VALUES (1, 1, 1, GETDATE() - 2, NULL)
-
+                                        VALUES (1, 1, 10, GETDATE() - 2, NULL),
+                                               (4, 2, 200, GETDATE() -2, NULL)
+ 
                                      SELECT  c.IdProduto,
                                             c.Quantidade AS QuantidadeNecessaria,
                                             c.IdMateriaPrima,
@@ -35,13 +32,13 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                                         FROM [dbo].[Composicao] c WITH(NOLOCK)
                                             INNER JOIN [dbo].[EstoqueMateriaPrima] emp WITH(NOLOCK)
                                                 ON c.IdMateriaPrima = emp.IdMateriaPrima
-                                        WHERE IdProduto = 1
+                                        WHERE IdProduto IN (1,2)
 
                                     SELECT  IdEstoqueMateriaPrima,
                                             Quantidade,
                                             IdTipoMovimentacao
                                         FROM [dbo].[MovimentacaoEstoqueMateriaPrima] WITH(NOLOCK)
-                                        WHERE IdEstoqueMateriaPrima IN (1, 2, 3)
+                                        WHERE IdEstoqueMateriaPrima IN (1, 2, 3, 4, 5, 6)
                                 ROLLBACK TRAN
     */
     BEGIN
@@ -55,7 +52,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
         IF NOT EXISTS   (SELECT TOP 1 1
                             FROM Inserted i
                                 INNER JOIN [dbo].[EtapaProducao] ep WITH(NOLOCK)
-                                    ON i.EtapaProducao = ep.Id
+                                    ON i.IdEtapaProducao = ep.Id
                             WHERE ep.NumeroEtapa = 1
                         )
             BEGIN
@@ -72,7 +69,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
         --Inserir registro das matérias primas da produção na tabela temporária
         INSERT INTO #MateriaPrima
             SELECT  c.IdMateriaPrima,
-                    c.Quantidade AS QuantidadeNecessaria,
+                    i.Quantidade * c.Quantidade AS QuantidadeNecessaria,
                     i.Quantidade * c.Quantidade - emp.QuantidadeFisica AS QuantidadeFaltante --Calcular o que será usado menos o que ja tem no estoque
                 FROM Inserted i
                     INNER JOIN [dbo].[EtapaProducao] ep WITH(NOLOCK)
@@ -94,12 +91,21 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                                 @QuantidadeNecessaria = QuantidadeNecessaria
                     FROM #MateriaPrima
 
+                IF @QuantidadeFaltante > 0
+                    BEGIN
+                        --Inserir movimentação de adição da matéria prima do faltante somado ao estoque mínimo
+                        EXEC [dbo].[SP_InserirMovimentacaoEstoqueMateriaPrima]  @IdMateriaPrima,
+                                                                                1,
+                                                                                @QuantidadeFaltante,
+                                                                                NULL
+                    END
 
                 --Inserir movimentação de subtração da matéria prima necessária para a produção
                 EXEC [dbo].[SP_InserirMovimentacaoEstoqueMateriaPrima]  @IdMateriaPrima,
                                                                         2,
                                                                         @QuantidadeNecessaria,
                                                                         NULL
+                
 
                 --Remover a matéria prima sensibilizada da tabela temporária
                 DELETE TOP(1)

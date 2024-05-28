@@ -69,7 +69,7 @@ CREATE TABLE [dbo].[MovimentacaoEstoqueProduto](
 													IdTipoMovimentacao TINYINT NOT NULL,
 													IdEstoqueProduto INT NOT NULL,
 													DataMovimentacao DATETIME NOT NULL,
-													Quantidade SMALLINT
+													Quantidade INT
 													CONSTRAINT fk_IdTipoMovimentacao_MovimentacaoEstoqueProduto
 														FOREIGN KEY (idTipoMovimentacao)
 														REFERENCES [dbo].[TipoMovimentacao] (Id),
@@ -110,7 +110,7 @@ CREATE TABLE [dbo].[MovimentacaoEstoqueMateriaPrima]	(
 															IdTipoMovimentacao TINYINT NOT NULL,
 															IdEstoqueMateriaPrima INT NOT NULL,
 															DataMovimentacao DATETIME NOT NULL,
-															Quantidade SMALLINT
+															Quantidade INT NOT NULL
 															CONSTRAINT fk_IdTipoMovimentacao_MovimentacaoEstoqueMateriaPrima
 																FOREIGN KEY (idTipoMovimentacao)
 																REFERENCES [dbo].[TipoMovimentacao] (Id),
@@ -177,7 +177,7 @@ GO
 CREATE TABLE [dbo].[Producao]	(
 									Id INT PRIMARY KEY IDENTITY,
 									IdEtapaProducao INT NOT NULL,
-									IdPedidoProduto INT,
+									IdPedidoProduto INT NOT NULL,
 									DataInicio DATETIME NOT NULL,
 									DataTermino DATETIME NULL,
 									Quantidade  SMALLINT NOT NULL,

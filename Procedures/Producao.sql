@@ -1,20 +1,16 @@
 CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducaoDeEtapa]		
-	@Quantidade SMALLINT,
-	@IdEtapaProducao INT,
+	@QuantidadeProducao INT = NULL,
+	@IdEtapaProducao INT = NULL,
 	@IdPedidoProduto INT = NULL
 	AS
 	/*
 		Documentacao
-			Arquivo fonte........: Producao.sql
-			Objetivo.............: Inserir novo registro em Producao marcando inicio de nova etapa de producao
-			Autor................: Gabriel Damiani Puccinelli
-			Data.................: 23/05/2024
+			Arquivo fonte........: 	Producao.sql
+			Objetivo.............: 	Inserir novo registro em Producao marcando inicio de nova etapa de producao
+			Autor................: 	Gabriel Damiani Puccinelli
+			Data.................: 	23/05/2024
 			Ex...................:	BEGIN TRAN
-										SELECT	IdEtapaProducao,
-												IdPedidoProduto,
-												DataInicio,
-												DataTermino,
-												Quantidade
+										SELECT	*
 											FROM Producao WITH(NOLOCK)
 
 										DBCC DROPCLEANBUFFERS
@@ -22,52 +18,103 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducaoDeEtapa]
 
 										DECLARE	@Retorno INT,
 												@DataInicio DATETIME = GETDATE()
-
-										EXEC @Retorno = [dbo].[SP_IniciarProducaoDeEtapa] 500, 1
-
+										
+										EXEC @Retorno = [dbo].[SP_IniciarProducaoDeEtapa] 5, 8
+										
 										SELECT 	@Retorno AS Retorno,
 												DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
 
-										SELECT	IdEtapaProducao,
-												IdPedidoProduto,
-												DataInicio,
-												DataTermino,
-												Quantidade
+										SELECT	*
 											FROM Producao WITH(NOLOCK)
+
+									SELECT *
+										FROM MovimentacaoEstoqueMateriaPrima WITH(NOLOCK)
 									ROLLBACK TRAN
 
 			Retornos.............:	00 - Sucesso.
-									01 - Erro, a quantidade nao foi passada como parametro.
-									02 - Erro, etapada de producao inexistente.
-									03 - Erro, nao foi possivel fazer o resgistro na tabela.
+									01 - Erro, etapada de producao inexistente.
+									02 - Erro, pedido produto inexistente.
+									03 - Erro, a etapa passada como parametro nao e equivalente as do produto.
+									04 - Erro, nao foi possivel fazer o resgistro na tabela.
+									05 - Ja existe produtos suficientes para atender ao pedido.
 	*/
 	BEGIN
-		-- VERIFICANDO SE A QUANTIDADE FOI PASSADA COMO PARAMETRO
-		IF @Quantidade IS NULL
-			RETURN 1;
+		-- DECLARANDO VARIAVEIS NECESSARIAS
+		DECLARE @IdProduto INT,
+				@Quantidade INT = NULL,
+				@QuantidadeMinima INT,
+				@QuantidadeEstoqueReal INT;
 
 		-- VERIFICANDO SE EXISTE A ETAPA DE PRODUCAO QUE FOI PASSADA COMO PARAMETRO
-		IF NOT EXISTS(
-						SELECT TOP 1 1
-							FROM [dbo].[EtapaProducao] WITH(NOLOCK)
-							WHERE Id = @IdEtapaProducao
-					 )
+		IF NOT EXISTS	(
+							SELECT TOP 1 1
+								FROM [dbo].[EtapaProducao] WITH(NOLOCK)
+								WHERE Id = @IdEtapaProducao
+					 	)
+			RETURN 1;
+
+		-- VERIFICANDO SE EXISTE O PEDIDO PRODUTO QUE FOI PASSADO COMO PARAMETRO
+		IF NOT EXISTS	(
+							SELECT TOP 1 1
+								FROM [dbo].[PedidoProduto] WITH(NOLOCK)
+								WHERE Id = @IdPedidoProduto
+					 	)
 			RETURN 2;
+
+		-- SETANDO VALOR PARA A VARIAVEL DE IdPedidoProduto
+		SELECT	@IdProduto = IdProduto
+			FROM [dbo].[PedidoProduto] WITH(NOLOCK)
+			WHERE Id = @IdPedidoProduto;
+
+		IF	( 
+				SELECT ep.NumeroEtapa
+					FROM EtapaProducao ep WITH(NOLOCK)
+					WHERE ep.Id = @IdEtapaProducao 
+			) = 1
+				BEGIN
+					-- SETANDO VALOR PARA A VARIAVEL DE QuantidadeMinima
+					SELECT @QuantidadeMinima = QuantidadeMinima
+							FROM [dbo].[EstoqueProduto] WITH(NOLOCK)
+							WHERE IdProduto = @IdProduto;
+
+					-- SETANDO VALOR PARA A VARIAVEL DE QuantidadeEstoqueReal
+					SET @QuantidadeEstoqueReal = [dbo].[FNC_CalcularEstoqueReal](@IdProduto);
+
+					-- VERIFICANDO SE E NECESSARIO PRODUZIR O PRODUTO
+					IF  @QuantidadeEstoqueReal >= @QuantidadeMinima
+						RETURN 5;
+
+					-- VERIFICANDO SE O ESTOQUE REAL E NEGATIVO
+					IF @QuantidadeEstoqueReal < 0
+						SET @Quantidade = @QuantidadeMinima + ABS(@QuantidadeEstoqueReal);
+					ELSE
+						SET @Quantidade = @QuantidadeMinima - @QuantidadeEstoqueReal;
+				END
+
+		-- VERIFICANDO SE A ETAPA PASSADA E DO PRODUTO
+		IF @IdEtapaProducao NOT IN 	(
+										SELECT Id
+											FROM [dbo].[EtapaProducao] WITH(NOLOCK)
+											WHERE IdProduto = @IdProduto
+									)
+			RETURN 3;
 
 		--INSERE NOVO REGISTRO EM PRODUCAO
 		INSERT INTO [dbo].[Producao] (IdEtapaProducao, IdPedidoProduto, DataInicio, Quantidade)
-			VALUES (@IdEtapaProducao, @IdPedidoProduto, GETDATE(), @Quantidade);
+			VALUES (@IdEtapaProducao, @IdPedidoProduto, GETDATE(), ISNULL(@Quantidade, @QuantidadeProducao));
 
 		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
-			RETURN 3;
+			RETURN 4;
 
 		RETURN 0;
 	END
 GO
 
+
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]
 	@IdProducao INT = NULL,
-	@Quantidade SMALLINT = NULL
+	@Quantidade INT = NULL
 	AS
 	/*
 		Documentacao
@@ -91,7 +138,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]
 										DECLARE	@Retorno INT,
 												@DataInicio DATETIME = GETDATE()
 
-										EXEC @Retorno = [dbo].[SP_EncerrarProducaoDeEtapa] 2, 500
+										EXEC @Retorno = [dbo].[SP_EncerrarProducaoDeEtapa] 12, NULL
+	
+										SELECT * FROM Producao
 
 										SELECT 	@Retorno AS Retorno,
 												DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
@@ -117,11 +166,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]
 				@TempoProducao INT;
 
 		--VERIFICANDO SE A PRODUCAO PASSADA COMO PARAMETRO EXISTE
-		IF NOT EXISTS(
-						SELECT TOP 1 1
-							FROM [dbo].[Producao] WITH(NOLOCK)
-							WHERE Id = @IdProducao
-					 )
+		IF NOT EXISTS	(
+							SELECT TOP 1 1
+								FROM [dbo].[Producao] WITH(NOLOCK)
+								WHERE Id = @IdProducao
+					 	)
 			RETURN 1;
 
 		--ATRIBUI VALOR DE DURACAO DA ETAPA DE PRODUCAO A TEMPO EXECUCAO

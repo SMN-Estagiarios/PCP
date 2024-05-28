@@ -23,33 +23,32 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueVirtual]	(
 	BEGIN
 
 		-- Declarando variáveis necessarias para a solucao
-		DECLARE @EstoqueVirtual INT;
+		DECLARE @EstoqueVirtual INT,
+				@EtapaMaxima INT;
 		
-		-- Calcular a quantidade de produto que ainda esta sendo produzida
-		WITH EtapaMaxima AS (
-			-- Capturar o valor máximo do número de etapa para o produto passado como parãmetro
-			SELECT	IdProduto,
-					MAX(NumeroEtapa) AS EtapaFinal
-				FROM [dbo].[EtapaProducao] WITH(NOLOCK)
-				GROUP BY IdProduto
-		), ProducaoFinalizada AS (
-			-- Capturar os Ids de producoes finalizadas
-			SELECT p.IdPedidoProduto
-				FROM [dbo].[Producao] p WITH(NOLOCK)
-					INNER JOIN [dbo].[EtapaProducao] ep WITH(NOLOCK)
-						ON p.IdEtapaProducao = ep.Id
-					INNER JOIN EtapaMaxima em
-						ON ep.IdProduto = em.IdProduto
-				WHERE ep.NumeroEtapa = em.EtapaFinal AND p.DataTermino IS NOT NULL
-		)	
-			-- Calcular a quantidade que está sendo produzida e atribuir o valor a variavel declarada
-			SELECT	@EstoqueVirtual = ISNULL(SUM(DISTINCT Quantidade), 0)
-				FROM [dbo].[Producao] WITH(NOLOCK)
-				WHERE IdPedidoProduto NOT IN	(
-													SELECT IdPedidoProduto
-														FROM ProducaoFinalizada
-												)
+		-- Setando a variavel @EtapaMaxima para o valor de numero de etapa maxima do produto passado
+		SELECT TOP 1 @EtapaMaxima = Id
+			FROM [dbo].[EtapaProducao] WITH(NOLOCK)
+			WHERE IdProduto = @IdProduto
+			ORDER BY Id DESC;
 
-		-- Retornar o valor da variável
+		-- 	-- Calcular a quantidade que está sendo produzida e atribuir o valor a variavel declarada
+		SELECT @EstoqueVirtual = ISNULL(SUM(CASE WHEN x.rank = 1 THEN x.Quantidade END), 0)
+			FROM	(
+						SELECT 	p.Quantidade,
+								DENSE_RANK() OVER (PARTITION BY p.IdPedidoProduto ORDER BY p.Id DESC) AS rank
+							FROM [dbo].[Producao] p WITH(NOLOCK)
+								LEFT JOIN [dbo].[EtapaProducao] ep WITH(NOLOCK)
+									ON ep.Id = p.IdEtapaProducao
+							WHERE ep.IdProduto = @IdProduto
+								AND p.IdPedidoProduto NOT IN	(
+																	SELECT IdPedidoProduto
+																		FROM [dbo].[Producao] WITH(NOLOCK)
+																		WHERE IdEtapaProducao = @EtapaMaxima
+																			AND DataTermino IS NOT NULL
+																)
+					) AS x
+
+		-- Retornar o valor da variavel
 		RETURN @EstoqueVirtual;
-	END
+	END;
