@@ -49,7 +49,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirCliente]
 								DECLARE @Data_Inicio DATETIME = GETDATE(),
 										@Retorno INT;
 
-								EXEC @Retorno = [dbo].[SP_InserirCliente] 'Gustavo Targino'
+								EXEC @Retorno = [dbo].[SP_InserirCliente] 'Roberto'
 
 								SELECT 	@Retorno AS Retorno,
 										DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo;
@@ -63,7 +63,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirCliente]
 	*/
 	BEGIN
 		-- Inserindo um novo cliente
-		INSERT INTO [dbo].[Cliente](c.Nome)
+		INSERT INTO [dbo].[Cliente]	(c.Nome)
 			VALUES (@Nome)
 
 		-- Checagem de erro

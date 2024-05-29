@@ -108,17 +108,9 @@ GO
 -- Drop Proc EstoqueProduto
 DROP PROCEDURE [dbo].[SP_AtualizarEstoqueProduto]
 GO
-DROP PROCEDURE [dbo].[FNC_ChecagemEstoqueProduto]
-GO
-DROP PROCEDURE [dbo].[FNC_DuracaoEstapaProducao]
-GO
 
 -- Drop Proc EtapaProducao
-DROP PROCEDURE [dbo].[SP_ListarEtapaProducao]
-GO
 DROP PROCEDURE [dbo].[SP_InserirEtapaProducao]
-GO
-DROP PROCEDURE [dbo].[SP_AtualizarEtapaProducao]
 GO
 DROP PROCEDURE [dbo].[SP_IniciarProducaoEtapa]
 GO
@@ -147,8 +139,6 @@ DROP PROCEDURE [dbo].[SP_InserirPedido]
 GO
 DROP PROCEDURE [dbo].[SP_ListarPedidos]
 GO
-DROP PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
-GO
 DROP PROCEDURE [dbo].[SP_ListarPedidosEmProducao]
 GO
 DROP PROCEDURE [dbo].[SP_ListarPedidosCompletos]
@@ -176,8 +166,6 @@ GO
 DROP FUNCTION [dbo].[FNC_CalcularTempoProducaoProduto]
 GO
 DROP FUNCTION [dbo].[FNC_ChecarEstoqueProduto]
-GO
-DROP FUNCTION [dbo].[FNC_VerificarDuracaoEtapaProducao]
 GO
 DROP FUNCTION [dbo].[FNC_DuracaoEtapaProducao]
 GO

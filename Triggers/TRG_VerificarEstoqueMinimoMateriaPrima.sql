@@ -14,6 +14,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_VerificarEstoqueMinimoMateriaPrima]
 
                                         SELECT *
                                             FROM [dbo].[MovimentacaoEstoqueMateriaPrima] WITH(NOLOCK)
+                                            
                                             WHERE IdEstoqueMateriaPrima = 1
                                         
                                         SELECT *

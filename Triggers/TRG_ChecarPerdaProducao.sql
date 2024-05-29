@@ -53,8 +53,9 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarPerdaProducao]
             BEGIN
 
                 --Calcular a quantidade perdida e atribuir valor à mensagem de erro
-                SET @QuantidadePerdida = @QuantidadePerdida - @QuantidadeAtual
-                SET @Erro = CONCAT('Houve uma perda durante a produção referente a ', CAST(@QuantidadePerdida AS VARCHAR), ' unidades do produto de ID ' + CAST(@IdProduto AS VARCHAR))
+                SET @QuantidadePerdida = @QuantidadeAntiga - @QuantidadeAtual
+                
+                SET @Erro = CONCAT('Houve uma perda durante a produção referente a ', CAST(@QuantidadePerdida AS VARCHAR(7)), ' unidades do produto de ID ', CAST(@IdProduto AS VARCHAR))
                 
                 --Enviar erro
                 RAISERROR(@Erro, 16, 1)

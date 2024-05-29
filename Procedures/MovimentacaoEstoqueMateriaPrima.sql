@@ -67,7 +67,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirMovimentacaoEstoqueMateriaPrima]
 
 		-- Inserir registro na tabela.
 		INSERT INTO [dbo].[MovimentacaoEstoqueMateriaPrima]	(idTipoMovimentacao, IdEstoqueMateriaPrima, Quantidade, DataMovimentacao)
-			VALUES											(@IdTipoMovimentacao, @IdMateriaPrima, @Quantidade, @DataAtual);
+			VALUES (@IdTipoMovimentacao, @IdMateriaPrima, @Quantidade, @DataAtual);
 
 		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 			RETURN 4;

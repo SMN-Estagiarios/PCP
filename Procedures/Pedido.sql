@@ -17,7 +17,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirPedido]
 											@DataInicio DATETIME = GETDATE(),
 											@DataPromessa DATE =  DATEADD(DAY, 10, GETDATE())
 
-									EXEC @Retorno = [dbo].[SP_InserirPedido] 20, @DataPromessa, N'	[	
+									EXEC @Retorno = [dbo].[SP_InserirPedido] 23, @DataPromessa, N'	[	
 																										{"IdProduto": 1, "Quantidade": 2},
 																										{"IdProduto": 2, "Quantidade": 5}
 																									]
@@ -224,11 +224,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidos]
 	END
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
+CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosEmAtraso]
 	AS 
 	/*
 		Documentação
-		Arquivo Fonte.........:	FNC_VerificarMatPrimaProduto.sql
+		Arquivo Fonte.........:	Pedido.sql
 		Objetivo..............:	Lista os pedidos que estão em atraso e os pedidos que foram entregues em atraso 
 		Autor.................:	Adriel Alexander de Sousa
 		Data..................:	21/05/2024
@@ -244,7 +244,6 @@ CREATE OR ALTER PROCEDURE [dbo].[Sp_ListarPedidosEmAtraso]
 	BEGIN
 		--Declaracao de variáveis 
 		DECLARE @DataAtual DATE = GETDATE();
-
 
 		--Consulta dos pedidos em atraso 
 		SELECT p.Id,
@@ -353,7 +352,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 
 											DECLARE @DataInicio DATETIME = GETDATE(),
 													@Retorno INT,
-													@IdPedido INT = 7
+													@IdPedido INT = 37
 											
 											SELECT * 
 												FROM PedidoProduto 
@@ -368,10 +367,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarPedidosCompletos]
 											SELECT * 
 												FROM PedidoProduto  
 												WHERE IdPedido = @IdPedido
-
+												
 											SELECT * 
 												FROM MovimentacaoEstoqueProduto 
 												WHERE IdEstoqueProduto = 1
+
+											SELECT * 
+												FROM EstoqueProduto 
+												WHERE IdProduto IN (1, 2)
 
 											SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo,
 												   @Retorno Retorno

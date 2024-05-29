@@ -19,7 +19,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_IniciarProducaoDeEtapa]
 										DECLARE	@Retorno INT,
 												@DataInicio DATETIME = GETDATE()
 										
-										EXEC @Retorno = [dbo].[SP_IniciarProducaoDeEtapa] 5, 8
+										EXEC @Retorno = [dbo].[SP_IniciarProducaoDeEtapa] 125, 6, 28
 										
 										SELECT 	@Retorno AS Retorno,
 												DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
@@ -138,9 +138,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]
 										DECLARE	@Retorno INT,
 												@DataInicio DATETIME = GETDATE()
 
-										EXEC @Retorno = [dbo].[SP_EncerrarProducaoDeEtapa] 12, NULL
+										EXEC @Retorno = [dbo].[SP_EncerrarProducaoDeEtapa] 7, 120
 	
 										SELECT * FROM Producao
+										
+										SELECT * FROM MovimentacaoEstoqueMateriaPrima
+
+										SELECT * FROM EstoqueProduto
 
 										SELECT 	@Retorno AS Retorno,
 												DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo
@@ -182,7 +186,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_EncerrarProducaoDeEtapa]
 			WHERE pd.Id = @IdProducao
 
 		--VERIFICA SE HOUVE TEMPO HABIL PARA TERMINAR A PRODUCAO
-		IF (DATEDIFF(MINUTE, @DataInicioProducao, @DataAtual) < @TempoProducao)
+		IF (DATEDIFF(MINUTE, @DataInicioProducao - 5, @DataAtual) < @TempoProducao)
 			RETURN 2;
 
 		--INSERE NOVO REGISTRO EM PRODUCAO

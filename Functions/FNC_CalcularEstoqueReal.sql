@@ -13,7 +13,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueReal]	(
 						DBCC FREEPROCCACHE
 						DBCC FREESYSTEMCACHE('ALL')
 						DBCC DROPCLEANBUFFERS
-
+			
 						DECLARE @DataInicio DATETIME = GETDATE();
 
 						SELECT [dbo].[FNC_CalcularEstoqueReal](2) AS EstoqueReal;
