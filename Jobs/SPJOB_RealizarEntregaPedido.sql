@@ -3,13 +3,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_RealizarEntregaPedido]
     /*
         Documentacao
         Arquivo Fonte.....: SPJOB_RealizarEntregaPedido.sql
-        Objetivo..........: Verificar e realizar entrega de pedidos que tem quantidade disponivel em estoque
+        Objetivo..........: Verificar e realizar entrega de pedidos que possuam estoque suficiente dos itens a cada 5 minutos
         Autor.............: Odlavir Florentino
         Data..............: 29/05/2024
         Ex................: BEGIN TRAN
                                 DBCC FREEPROCCACHE
                                 DBCC FREESYSTEMCACHE('ALL')
                                 DBCC DROPCLEANBUFFERS
+
+                                DECLARE @DataInicio DATETIME = GETDATE();
 
                                 TRUNCATE TABLE [dbo].[MovimentacaoEstoqueProduto];
 
@@ -30,6 +32,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_RealizarEntregaPedido]
 
                                 EXEC [dbo].[SPJOB_RealizarEntregaPedido]
 
+                                SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) Tempo;
+
                                 SELECT p.Id,
                                         p.DataEntrega
                                     FROM [dbo].[PedidoProduto] pp WITH(NOLOCK)
@@ -44,6 +48,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_RealizarEntregaPedido]
                                         DataMovimentacao,
                                         Quantidade
                                     FROM [dbo].[MovimentacaoEstoqueProduto] WITH(NOLOCK);
+
                             ROLLBACK TRAN
     */
     BEGIN
