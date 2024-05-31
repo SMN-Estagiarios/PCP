@@ -9,50 +9,64 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 		Autores................: Thays Carvalho, Adriel Alexander, Gustavo Targino
 		Data...................: 23/05/2024
 		Ex.....................: BEGIN TRAN
-										SELECT Id,
-											   IdTipoMovimentacao,
-											   IdEstoqueProduto,
-											   DataMovimentacao,
-											   Quantidade
-											FROM [dbo].[movimentacaoestoqueproduto]	where idestoqueproduto = 1
-										
-										SELECT IdProduto,
-											   QuantidadeFisica,
-											   QuantidadeMinima 
-											FROM [dbo].[estoqueproduto] where idproduto = 1
-										
+										DBCC DROPCLEANBUFFERS;
+										DBCC FREEPROCCACHE;
+
+									    SELECT TOP 5 Id,
+													 IdTipoMovimentacao,
+													 IdEstoqueProduto,
+													 DataMovimentacao,
+													 Quantidade
+												FROM [dbo].[movimentacaoestoqueproduto]	WITH(NOLOCK)
+												ORDER BY Id DESC 
+
+									   SELECT TOP 5	IdEtapaProducao,
+													IdPedidoProduto,
+													DataInicio,
+													DataTermino,
+													Quantidade
+											FROM [dbo].[Producao] WITH(NOLOCK)
+											ORDER BY DataTermino DESC 
+							
 										UPDATE Producao
-											SET DataTermino = GETDATE()
-												WHERE Id IN(8) 
+												SET DataTermino = GETDATE()
+													WHERE id = (
+																	SELECT MAX(p.id)
+																		FROM [dbo].[Producao] p
+																			INNER JOIN PedidoProduto pp
+																				ON p.IdPedidoProduto = pp.Id
+																		WHERE pp.idPedido = 37 
+														        )
+								
+										SELECT		 Id,
+													 IdTipoMovimentacao,
+													 IdEstoqueProduto,
+													 DataMovimentacao,
+													 Quantidade
+												FROM [dbo].[movimentacaoestoqueproduto]	WITH(NOLOCK)
+												ORDER BY Id DESC 
 
-										UPDATE Producao
-											SET DataTermino = GETDATE()
-												WHERE Id IN(8)
-
-										SELECT Id,
-											   IdTipoMovimentacao,
-											   IdEstoqueProduto,
-											   DataMovimentacao,
-											   Quantidade
-											FROM [dbo].[movimentacaoestoqueproduto]	where idestoqueproduto = 1
-										
-										SELECT IdProduto,
-											   QuantidadeFisica,
-											   QuantidadeMinima 
-											FROM [dbo].[estoqueproduto] where idproduto = 1
-
+								    	SELECT TOP 5 IdEtapaProducao,
+													 IdPedidoProduto,
+													 DataInicio,
+													 DataTermino,
+													 Quantidade
+											FROM [dbo].[Producao] WITH(NOLOCK)
+											ORDER BY DataTermino DESC 
 								 ROLLBACK TRAN
 	*/
 	BEGIN
+		--Declaracao de variáveis 
+		DECLARE @DataAtual DATETIME = GETDATE();
+
 		-- Insercao na tabela de MovimentacaoEstoqueProduto para os produtos que foram entregues 
 		WITH EtapaMaxima AS  (
-								 -- Capturar o valor máximo do número de etapa para o produto passado como parãmetro
-							  SELECT    IdProduto,
-										MAX(NumeroEtapa) AS EtapaFinal
-									FROM [dbo].[EtapaProducao] WITH(NOLOCK)
-									GROUP BY IdProduto
-						     )  
-			--realiza a inserção das etapas que foram finalizadas 
+			-- Capturar o valor máximo do número de etapa para o produto passado como parãmetro
+			SELECT  IdProduto,
+					MAX(NumeroEtapa) AS EtapaFinal
+				FROM [dbo].[EtapaProducao] WITH(NOLOCK)
+				GROUP BY IdProduto
+							 )  
         INSERT INTO MovimentacaoEstoqueProduto(IdEstoqueProduto, idTipoMovimentacao, DataMovimentacao, Quantidade)
             SELECT  ep.IdProduto,
                     1, --id travado em 1 = entrada para produtos que acabaram de ser produzidos
@@ -68,7 +82,6 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
                 WHERE ep.NumeroEtapa = em.EtapaFinal 
 						  AND I.DataTermino IS NOT NULL
 						  AND d.DataTermino IS NULL
-						  
 		--validacao de erros 
 		IF @@ERROR <> 0
 			BEGIN

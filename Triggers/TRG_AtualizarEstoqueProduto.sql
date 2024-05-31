@@ -64,6 +64,8 @@ FOR INSERT
 			FROM [dbo].[EstoqueProduto] ep
 				INNER JOIN inserted i 
 					ON i.IdEstoqueProduto = ep.IdProduto
+		
+		-- Verificação de Erro 
 		IF @@ERROR <> 0 
 			BEGIN
 				RAISERROR('Não foi possivel atualizar o estoque do produto', 16,1);
