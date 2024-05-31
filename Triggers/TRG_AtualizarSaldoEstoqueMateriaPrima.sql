@@ -1,11 +1,10 @@
-CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarEstoqueMateriaPrima]
+CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldoEstoqueMateriaPrima]
 ON [dbo].[MovimentacaoEstoqueMateriaPrima]
 FOR INSERT
 	AS
 	/*
-		
 		DOCUMENTACAO
-		Arquivo Fonte........:	TRG_AtualizarEstoqueMatPrima.sql
+		Arquivo Fonte........:	TRG_AtualizarSaldoEstoqueMateriaPrima.sql
 		Objetivo.............:	Atualiza estoque da materia prima com base nas movimentacoes
 		Autor................:	Adriel Alexander
 		Data.................:	22/05/2024

@@ -1,10 +1,10 @@
-CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarEstoqueProduto]
+CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldoEstoqueProduto]
 ON [dbo].[MovimentacaoEstoqueProduto]
 FOR INSERT 
 	AS
 	/*
 		DOCUMENTACAO
-		Arquivo Fonte........:	TRG_AtualizarEstoqueProduto.sql
+		Arquivo Fonte........:	TRG_AtualizarSaldoEstoqueProduto.sql
 		Objetivo.............:	Atualiza quantidade fisica do estoque de produto apos insert gerado na tabela MovimentacaoEstoqueProduto, que pode ocorrer quando um pedido e entregue
 								ou quando ocorre a finalizacao de todas as etapas de producao para a composicao de um produto
 								@IdTipoMovimentacao travado em 1 para entregue e os ids acima de um representam saida ou perca 

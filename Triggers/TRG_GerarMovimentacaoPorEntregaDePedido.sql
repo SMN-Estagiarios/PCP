@@ -1,6 +1,6 @@
 CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
-	ON [dbo].[Pedido]
-	FOR UPDATE
+	ON [dbo].[PedidoProduto]
+	FOR INSERT
 	AS
 	/*
 		DOCUMENTACAO
@@ -17,46 +17,43 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 
 									DECLARE @DATA_INI DATETIME = GETDATE();
 									
-									SELECT * FROM [dbo].[Pedido] WITH(NOLOCK)
-
-									 SELECT Id,
-									 		IdTipoMovimentacao,
-									 		IdEstoqueProduto,
-									 		DataMovimentacao,
-									 		Quantidade
-									 	FROM [dbo].[MovimentacaoEstoqueProduto]
-									 	WHERE IdEstoqueProduto = 1
-
-									SElECT *
-										FROM EstoqueProduto
-										WHERE IdProduto IN (1,2)
+									SELECT  Id,
+                                            IdTipoMovimentacao,
+                                            IdEstoqueProduto,
+                                            DataMovimentacao,
+                                            Quantidade
+										FROM [dbo].[movimentacaoestoqueproduto]	
 									
 									SELECT IdProduto,
-										   QuantidadeFisica,
-										   QuantidadeMinima 
-										FROM [dbo].[Estoqueproduto] 
-										WHERE IdProduto = 1
+											QuantidadeFisica,
+											QuantidadeMinima 
+										FROM [dbo].[estoqueproduto]
 
-									UPDATE [dbo].[Pedido]
-										SET DataEntrega = GETDATE()+1
-										WHERE Id = 37
+								INSERT INTO PedidoProduto (IdPedido, IdProduto, Quantidade)																					
+											VALUES 	(1,	1,	125),
+                                                    (1,	2,	125),
+                                                    (2,	1,	120),
+                                                    (2,	1,	120);
+								-- INSERT INTO PedidoProduto (IdPedido, IdProduto, Quantidade)																					
+								-- 			VALUES 	(1,	2,	125);
+                                -- INSERT INTO PedidoProduto (IdPedido, IdProduto, Quantidade)																					
+								-- 			VALUES 	(2,	1,	120);
+                                -- INSERT INTO PedidoProduto (IdPedido, IdProduto, Quantidade)																					
+								-- 			VALUES 	(2,	1,	120);
 								
 									SELECT Id,
 										   IdTipoMovimentacao,
 										   IdEstoqueProduto,
 										   DataMovimentacao,
 										   Quantidade
-										FROM [dbo].[MovimentacaoEstoqueProduto]	
-										WHERE IdEstoqueProduto = 1
+										FROM [dbo].[movimentacaoestoqueproduto]	
 										
 									SELECT IdProduto,
 										   QuantidadeFisica,
 										   QuantidadeMinima 
-										FROM [dbo].[Estoqueproduto] 
-										WHERE IdProduto IN (1,2)
+										FROM [dbo].[estoqueproduto]
 
-									SELECT * FROM [dbo].[Pedido] WITH(NOLOCK)
-								
+                                    SELECT * FROM AuditoriaMovimetacaoEstoqueProduto
 								ROLLBACK TRAN					
 	*/
 	BEGIN
@@ -65,79 +62,79 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 				@IdEstoqueProduto INT,
 				@Quantidade INT,
 				@IdPedido INT,
+				@IdPedidoProduto INT,
 				@IdProduto INT,
 				@DataEntregaInserted DATE,
 				@DataEntregaDeleted DATE,
-				@IdTipoMovimentacao INT = 1,
-				@RET INT
+				@IdMovimentacao INT,
+                @RET INT
 			
 		-- atribuicoes de valores para as variaveis 
-		SELECT @DataEntregaInserted = DataEntrega
-			FROM INSERTED
+		-- SELECT @DataEntregaInserted = DataEntrega
+		-- 	FROM INSERTED
 		
-		SELECT @DataEntregaDeleted = DataEntrega
-			FROM DELETED
-
-			CREATE TABLE #ProdutosDoPedido (
-					IdPedido INT,
-					IdProduto INT,
-					Quantidade INT,
-					DataEntregaInserted DATETIME
-			)
-
-		--verifica se o motivo do update foi a realizacao da entrega dos produtos aos clientes
-		IF @DataEntregaInserted IS NOT NULL AND @DataEntregaDeleted IS NULL
-			BEGIN 
-				SET @IdTipoMovimentacao = 2
-
-				INSERT INTO #ProdutosDoPedido (IdPedido, IdProduto, Quantidade, DataEntregaInserted)
-					SELECT  pp.Id,
-							pp.IdProduto,
-							pp.Quantidade,
-							i.DataEntrega
-						FROM [dbo].[PedidoProduto] pp WITH(NOLOCK)
-							INNER JOIN INSERTED i
-								ON i.Id = pp.IdPedido
-						WHERE i.DataEntrega IS NOT NULL 
-			END
-
-		--Caso mude de nao nulo para nulo
-		ELSE IF @DataEntregaInserted IS NULL AND @DataEntregaDeleted IS NOT NULL
-			BEGIN
-				INSERT INTO #ProdutosDoPedido (IdPedido, IdProduto, Quantidade, DataEntregaInserted)
-					SELECT  pp.Id,
-							pp.IdProduto,
-							pp.Quantidade,
-							i.DataEntrega
-						FROM [dbo].[PedidoProduto] pp WITH(NOLOCK)
-							INNER JOIN INSERTED i
-								ON i.Id = pp.IdPedido
-						WHERE i.DataEntrega IS NULL
-			END
+		-- SELECT @DataEntregaDeleted = DataEntrega
+		-- 	FROM DELETED
 		
-		--Caso seja somente mudanca de data de entrega, nao ha mudanca no estoque
-		ELSE
-			BEGIN
-				DROP TABLE #ProdutosDoPedido
-		 		RETURN;
-			END
+		CREATE TABLE #Tabela (
+                                IdPedidoProduto INT,
+								IdPedido INT, 
+								IdProduto INT,
+								Quantidade INT,
+								DataEntrega DATE
+							 );
+
+		INSERT INTO #Tabela (IdPedidoProduto, IdProduto, IdPedido, Quantidade, DataEntrega)
+            --Faz a inserção relacionada com o que vem na inserted 
+            SELECT  i.Id,
+                    i.IdProduto,
+                    i.IdPedido,
+                    i.Quantidade,
+                    p.DataEntrega
+                FROM INSERTED i
+                    INNER JOIN [dbo].[Pedido] p WITH(NOLOCK)
+                        ON p.Id = i.IdPedido
+                WHERE p.DataEntrega IS NOT NULL
+
+		--faz um looping para fazer os inserts em movimentacao em lote 
+		WHILE EXISTS (
+						SELECT TOP 1 1 
+							FROM #Tabela
+					 )
+            BEGIN
+                SELECT TOP 1 @IdPedido = t.IdPedido
+                    FROM #Tabela t;
+
+                -- Inserir movimenta;áo em etoque produto com retirada de estoque
+                INSERT INTO [dbo].[MovimentacaoEstoqueProduto]( 
+                                                                IdTipoMovimentacao,
+                                                                IdEstoqueProduto,
+                                                                DataMovimentacao,
+                                                                Quantidade
+                                                            )
+                    SELECT TOP 1    2,
+                                    IdProduto,
+                                    DataEntrega,
+                                    Quantidade
+                        FROM #Tabela
+
+                SELECT @IdMovimentacao = SCOPE_IDENTITY()
+
+                INSERT INTO [dbo].[AuditoriaMovimetacaoEstoqueProduto] (IdPedido, IdMovimentacaoEstoqueProduto)
+                    VALUES (@IdPedido, @IdMovimentacao)
+                
+                DELETE TOP (1)
+                    FROM #Tabela
+
+                SELECT  @IdPedido = NULL,
+                        @IdMovimentacao = NULL
+            END
+	    DROP TABLE #tabela
+		-- --verifica se o motivo do update foi a realizacao da entrega dos produtos aos clientes
+		-- IF @DataEntregaInserted IS NOT NULL AND @DataEntregaDeleted IS NULL
+		-- 	BEGIN 
 			
-			-- Inserir movimentacao em etoque produto com retirada de estoque
-			WHILE EXISTS ( SELECT TOP 1 1 
-							FROM #ProdutosDoPedido )
-				BEGIN
-					SELECT TOP 1 @IdPedido = IdPedido,
-								@IdProduto = IdProduto,
-								@Quantidade = Quantidade,
-								@DataEntregaInserted = DataEntregaInserted
-						FROM #ProdutosDoPedido
 
-					EXEC @RET = [dbo].[SP_InserirMovimentacaoEstoqueProduto] @IdProduto, @IdTipoMovimentacao, @DataAtual, @Quantidade
-					PRINT @RET
 
-					DELETE TOP (1) FROM #ProdutosDoPedido
-				END
-
-				DROP TABLE #ProdutosDoPedido
-
+			--END
 	END	

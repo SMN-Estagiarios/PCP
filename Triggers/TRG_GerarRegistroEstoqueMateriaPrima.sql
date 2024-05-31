@@ -1,10 +1,10 @@
-CREATE OR ALTER TRIGGER [dbo].[TRG_GerarEstoqueMateriaPrima]
+CREATE OR ALTER TRIGGER [dbo].[TRG_GerarRegistroEstoqueMateriaPrima]
 	ON [dbo].[MateriaPrima]
 	AFTER INSERT
 	AS
 	/*
 		Documentacao
-		Arquivo Fonte.....: TRG_GerarEstoqueMateriaPrima.sql
+		Arquivo Fonte.....: TRG_GerarRegistroEstoqueMateriaPrima.sql
 		Objetivo..........: Gerar um registro de estoque, sempre que uma materia prima for inserida.
 		Autor.............: Odlavir Florentino
 		Data..............: 21/05/2024

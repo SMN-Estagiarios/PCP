@@ -190,3 +190,33 @@ CREATE TABLE [dbo].[Producao]	(
 										REFERENCES [dbo].[PedidoProduto] (Id)
 								);
 GO
+
+-- -----------------------------------------------------
+-- Tabela [dbo].[PedidoMovimetacaoEstoqueProduto]
+-- -----------------------------------------------------
+CREATE TABLE [dbo].[AuditoriaMovimetacaoEstoqueProduto](
+														IdPedido INT NOT NULL,
+														IdMovimentacaoEstoqueProduto INT NOT NULL UNIQUE
+														CONSTRAINT fk_IdPedido_AuditoriaMovimetacaoEstoqueProduto
+															FOREIGN KEY (IdPedido)
+															REFERENCES [dbo].[Pedido] (Id),
+														CONSTRAINT fk_IdMovimetacaoEstoqueProduto_AuditoriaMovimetacaoEstoqueProduto
+															FOREIGN KEY (IdMovimentacaoEstoqueProduto)
+															REFERENCES [dbo].[MovimentacaoEstoqueProduto] (Id)
+													);
+GO
+
+-- -----------------------------------------------------
+-- Tabela [dbo].[PedidoMovimetacaoEstoqueMateriaPrima]
+-- -----------------------------------------------------
+CREATE TABLE [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima](
+														IdPedido INT NOT NULL,
+														IdMovimentacaoEstoqueMateriaPrima INT NOT NULL UNIQUE
+														CONSTRAINT fk_IdPedido_AuditoriaMovimetacaoEstoqueMateriaPrima
+															FOREIGN KEY (IdPedido)
+															REFERENCES [dbo].[Pedido] (Id),
+														CONSTRAINT fk_IdMovimetacaoEstoqueMateriaPrima_AuditoriaMovimetacaoEstoqueMateriaPrima
+															FOREIGN KEY (IdMovimentacaoEstoqueMateriaPrima)
+															REFERENCES [dbo].[MovimentacaoEstoqueMateriaPrima] (Id)
+													);
+GO
