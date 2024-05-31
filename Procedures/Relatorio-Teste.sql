@@ -93,4 +93,54 @@ END;
 
 GO
 
-SELECT * FROM Producao
+CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoPorPagina]
+    @Pagina INT = NULL,
+    @TamanhoPagina INT
+
+AS
+
+/*
+    Documentação
+    Arquivo Fonte: Relatorio.sql
+    Objetivo: Listar os pedidos dividindo-os por página
+    Autor: Pedro Avelino
+    Data: 31/04
+    Ex:
+        BEGIN TRAN
+
+            DBCC DROPCLEANBUFFERS
+            DBCC FREEPROCCACHE
+
+            DECLARE @DataInicio DATETIME = GETDATE();
+
+            EXEC [dbo].[SP_RelatorioPedidoPorPagina] 3, 10;
+
+            SELECT DATEDIFF (MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+
+        ROLLBACK TRAN
+*/
+
+BEGIN
+
+    DECLARE @Inicio INT;
+    SET @Inicio = (@Pagina - 1) * @TamanhoPagina;
+
+    IF @Pagina IS NULL
+        BEGIN   
+            SET @Inicio = 0;
+        END;
+
+    SELECT  Id,
+            IdCliente,
+            DataPedido,
+            DataPromessa,
+            DataEntrega
+        FROM [dbo].[Pedido] 
+        ORDER BY Id
+            OFFSET @Inicio ROWS
+            FETCH NEXT @TamanhoPagina ROWS ONLY;
+END;
+
+GO
+
+
