@@ -53,7 +53,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 										   QuantidadeMinima 
 										FROM [dbo].[estoqueproduto]
 
-                                    SELECT * FROM AuditoriaMovimetacaoEstoqueProduto
+                                    SELECT * FROM AuditoriaMovimetacaoSaidaEstoqueProduto
 								ROLLBACK TRAN					
 	*/
 	BEGIN
@@ -120,7 +120,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 
                 SELECT @IdMovimentacao = SCOPE_IDENTITY()
 
-                INSERT INTO [dbo].[AuditoriaMovimetacaoEstoqueProduto] (IdPedido, IdMovimentacaoEstoqueProduto)
+                INSERT INTO [dbo].[AuditoriaMovimetacaoSaidaEstoqueProduto] (IdPedido, IdMovimentacaoEstoqueProduto)
                     VALUES (@IdPedido, @IdMovimentacao)
                 
                 DELETE TOP (1)

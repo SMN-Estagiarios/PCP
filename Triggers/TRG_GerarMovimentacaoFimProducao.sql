@@ -18,7 +18,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 											FROM [dbo].[movimentacaoestoqueproduto]	where idestoqueproduto = 1
 
 										SELECT *
-											FROM [dbo].[AuditoriaMovimetacaoEstoqueProduto] WITH(NOLOCK);
+											FROM [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto] WITH(NOLOCK);
 										
 										-- SELECT IdProduto,
 										-- 	   QuantidadeFisica,
@@ -53,7 +53,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 											FROM [dbo].[movimentacaoestoqueproduto]	
 
 										SELECT *
-											FROM [dbo].[AuditoriaMovimetacaoEstoqueProduto] WITH(NOLOCK);
+											FROM [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto] WITH(NOLOCK);
 										
 										SELECT IdProduto,
 											   QuantidadeFisica,
@@ -64,7 +64,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 	*/
 	BEGIN
 		DECLARE @IdMovimentacao INT,
-				@IdPedido INT,
+				@IdProducao INT,
 				@Erro INT,
 				@Linha INT;
 
@@ -114,10 +114,10 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 				SELECT 	@Erro = @@ERROR,
 						@Linha = @@ROWCOUNT,
 						@IdMovimentacao = SCOPE_IDENTITY(),
-						@IdPedido = pp.IdPedido
+						@IdProducao = pp.Id
 					FROM #Tabela t
-						INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
-							ON t.IdPedidoProduto = pp.Id;
+						INNER JOIN [dbo].[Producao] pp WITH(NOLOCK)
+							ON t.IdPedidoProduto = pp.IdPedidoProduto;
 
 
 				--Validacao de erros 
@@ -127,7 +127,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 						RETURN;
 					END
 
-				INSERT INTO [dbo].[AuditoriaMovimetacaoEstoqueProduto] (IdPedido, IdMovimentacaoEstoqueProduto)
+				INSERT INTO [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto] (IdProducao, IdMovimentacaoEstoqueProduto)
 					VALUES (@IdPedido, @IdMovimentacao);
 
 				--validacao de erros 
