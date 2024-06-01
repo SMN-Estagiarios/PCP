@@ -329,8 +329,61 @@ BEGIN
             AND c.Nome = @Nome;
 END;
 
+GO
 
+CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoDeUmCliente]
+    @Nome VARCHAR(255),
+    @StatusPedido CHAR(1)
 
+AS
 
+/*
+    Documentação
+    Arquivo Fonte: Relatorio.sql
+    Objetivo: Listar os pedidos de um cliente específico de acordo com o status do pedido (entregue em atraso, entregue no prazo ou não entregue)
+    Autor: Pedro Avelino;
+    Data: 01/06/2024
+    Ex: 
+        BEGIN TRAN
 
+            DBCC DROPCLEANBUFFERS
+            DBCC FREEPROCCACHE
 
+            DECLARE @DataInicio DATETIME = GETDATE();
+
+            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'João Silva', 'A';
+
+            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'João Silva', 'P';
+
+            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'João Silva', 'N';
+
+            SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+
+        ROLLBACK TRAN
+*/
+
+BEGIN
+
+    IF @StatusPedido NOT IN ('A', 'P', 'N')
+        BEGIN
+            RAISERROR('Tipo de relatório inválido. Use as letras "A" para "atrasado", "P" para "no prazo" ou "N" para "não entreguee".', 16, 1);
+            RETURN;
+        END;
+
+    SELECT  p.Id,
+            c.Nome,
+            p.DataPedido,
+            p.DataPromessa,
+            p.DataEntrega
+        FROM [dbo].[Cliente] c 
+        INNER JOIN [dbo].[Pedido] p
+            ON c.Id = p.IdCliente
+        WHERE c.Nome = @Nome
+        AND (
+            (@StatusPedido = 'A' AND p.DataEntrega IS NOT NULL AND p.DataEntrega > p.DataPromessa)
+            OR (@StatusPedido = 'P' AND p.DataEntrega IS NOT NULL AND p.DataEntrega <= p.DataPromessa)
+            OR (@StatusPedido = 'N' AND p.DataEntrega IS NULL)
+        );
+END;
+
+GO
