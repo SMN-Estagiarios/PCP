@@ -346,16 +346,16 @@ AS
     Ex: 
         BEGIN TRAN
 
-            DBCC DROPCLEANBUFFERS
-            DBCC FREEPROCCACHE
+            DBCC DROPCLEANBUFFERS 
+            DBCC FREEPROCCACHE 
 
             DECLARE @DataInicio DATETIME = GETDATE();
 
-            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'João Silva', 'A';
+            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'Danyel Targino', 'A';
 
-            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'João Silva', 'P';
+            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'Thays Carvalho', 'P';
 
-            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'João Silva', 'N';
+            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'Thomaz Falbo', 'N';
 
             SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
 
