@@ -127,7 +127,7 @@ CREATE TABLE [dbo].[PedidoProduto]	(
 										Id INT PRIMARY KEY  IDENTITY,
 										IdPedido INT NOT NULL,
 										IdProduto INT NOT NULL,
-										Quantidade SMALLINT NOT NULL
+										Quantidade INT NOT NULL
 
 										CONSTRAINT fk_IdPedido_PedidoProduto
 											FOREIGN KEY (IdPedido)
@@ -180,7 +180,7 @@ CREATE TABLE [dbo].[Producao]	(
 									IdPedidoProduto INT NOT NULL,
 									DataInicio DATETIME NOT NULL,
 									DataTermino DATETIME NULL,
-									Quantidade  SMALLINT NOT NULL,
+									Quantidade  INT NOT NULL,
 
 									CONSTRAINT fk_IdEtapaProducao_Producao
 										FOREIGN KEY (IdEtapaProducao)
@@ -233,4 +233,3 @@ CREATE TABLE [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima](
 															REFERENCES [dbo].[MovimentacaoEstoqueMateriaPrima] (Id)
 													);
 GO
-

@@ -59,15 +59,8 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 	BEGIN
 		--Declarando Variaveis 
 		DECLARE @DataAtual DATETIME = GETDATE(),
-				@IdEstoqueProduto INT,
-				@Quantidade INT,
 				@IdPedido INT,
-				@IdPedidoProduto INT,
-				@IdProduto INT,
-				@DataEntregaInserted DATE,
-				@DataEntregaDeleted DATE,
-				@IdMovimentacao INT,
-                @RET INT
+				@IdMovimentacao INT;
 			
 		-- atribuicoes de valores para as variaveis 
 		-- SELECT @DataEntregaInserted = DataEntrega
@@ -126,8 +119,8 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
                 DELETE TOP (1)
                     FROM #Tabela
 
-                SELECT  @IdPedido = NULL,
-                        @IdMovimentacao = NULL
+                SELECT  @IdMovimentacao = NULL,
+						@IdPedido = NULL;
             END
 	    DROP TABLE #tabela
 		-- --verifica se o motivo do update foi a realizacao da entrega dos produtos aos clientes

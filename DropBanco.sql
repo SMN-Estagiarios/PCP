@@ -1,4 +1,28 @@
 -- Drop das CONSTRAINT FK
+ALTER TABLE [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto] 
+DROP CONSTRAINT [fk_IdMovimetacaoEstoqueProduto_AuditoriaMovimetacaoEntradaEstoqueProduto]
+GO
+
+ALTER TABLE [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto]
+DROP CONSTRAINT [fk_IdPedido_AuditoriaMovimetacaoEntradaEstoqueProduto]
+GO
+
+ALTER TABLE [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima]
+DROP CONSTRAINT [fk_IdMovimetacaoEstoqueMateriaPrima_AuditoriaMovimetacaoEstoqueMateriaPrima]
+GO
+
+ALTER TABLE [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima] 
+DROP CONSTRAINT [fk_IdPedido_AuditoriaMovimetacaoEstoqueMateriaPrima]
+GO
+
+ALTER TABLE [dbo].[AuditoriaMovimetacaoSaidaEstoqueProduto] 
+DROP CONSTRAINT [fk_IdMovimetacaoEstoqueProduto_AuditoriaMovimetacaoSaidaEstoqueProduto]
+GO
+
+ALTER TABLE [dbo].[AuditoriaMovimetacaoSaidaEstoqueProduto] 
+DROP CONSTRAINT [fk_IdPedido_AuditoriaMovimetacaoSaidaEstoqueProduto]
+GO
+
 ALTER TABLE Pedido
 DROP CONSTRAINT fk_IdCliente_Pedido;
 GO
@@ -55,7 +79,15 @@ ALTER TABLE Producao
 DROP CONSTRAINT fk_IdPedidoProduto_Producao;
 GO
 
+
+
 -- Drop de tabelas
+DROP TABLE [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto]
+GO
+DROP TABLE [dbo].[AuditoriaMovimetacaoSaidaEstoqueProduto]
+GO
+DROP TABLE [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima]
+GO
 DROP TABLE [dbo].[Cliente]
 GO
 DROP TABLE [dbo].[Composicao]

@@ -55,7 +55,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                 @QuantidadeNecessaria INT,
                 @IdPedido INT,
                 @IdMovimentacao INT,
-                @DataTeste DATETIME;
+                @DataMovimentacao DATETIME;
 
 
         --Checar se a produção será iniciada agora
@@ -106,7 +106,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                                 @IdMateriaPrima = IdMateriaPrima,
                                 @QuantidadeFaltante = QuantidadeFaltante,
                                 @QuantidadeNecessaria = QuantidadeNecessaria,
-                                @DataTeste = DataTermino
+                                @DataMovimentacao = DataTermino
                     FROM #MateriaPrima
 
 
@@ -115,7 +115,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                         --Inserir movimentação de adição da matéria prima do faltante somado ao estoque mínimo
                         INSERT INTO [dbo].[MovimentacaoEstoqueMateriaPrima] (IdTipoMovimentacao, IdEstoqueMateriaPrima,
                                                                                 DataMovimentacao, Quantidade)
-                            VALUES (1, @IdMateriaPrima, @DataTeste, @QuantidadeFaltante)
+                            VALUES (1, @IdMateriaPrima, @DataMovimentacao, @QuantidadeFaltante)
 
                         SET @IdMovimentacao = SCOPE_IDENTITY();
 
@@ -126,7 +126,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                 --Inserir movimentação de subtração da matéria prima necessária para a produção
                 INSERT INTO [dbo].[MovimentacaoEstoqueMateriaPrima] (IdTipoMovimentacao, IdEstoqueMateriaPrima,
                                                                                 DataMovimentacao, Quantidade)
-                            VALUES (2, @IdMateriaPrima, @DataTeste, @QuantidadeFaltante)
+                            VALUES (2, @IdMateriaPrima, @DataMovimentacao, @QuantidadeNecessaria)
 
                 SET @IdMovimentacao = SCOPE_IDENTITY();
 
@@ -137,8 +137,11 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_ChecarMateriaPrimaProducao]
                 DELETE TOP(1)
                     FROM #MateriaPrima
 
-                SELECT  @IdMovimentacao = NULL,
-                        @IdPedido = NULL
+                SELECT  @IdMateriaPrima = NULL,
+                        @QuantidadeFaltante = NULL,
+                        @QuantidadeNecessaria = NULL,
+                        @IdPedido = NULL,
+                        @IdMovimentacao = NULL;
             END
 
             DROP TABLE #MateriaPrima;

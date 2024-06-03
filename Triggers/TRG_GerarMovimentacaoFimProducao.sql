@@ -105,10 +105,10 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 			BEGIN
 				INSERT INTO [dbo].[MovimentacaoEstoqueProduto] (IdTipoMovimentacao, IdEstoqueProduto, 
 																	DataMovimentacao, Quantidade)
-					SELECT	1, --id travado em 1 = entrada para produtos que acabaram de ser produzidos
-							IdProduto,
-							DataTermino,
-							Quantidade
+					SELECT	TOP 1	1, --id travado em 1 = entrada para produtos que acabaram de ser produzidos
+									IdProduto,
+									DataTermino,
+									Quantidade
 						FROM #Tabela;
 
 				SELECT 	@Erro = @@ERROR,
@@ -128,7 +128,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 					END
 
 				INSERT INTO [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto] (IdProducao, IdMovimentacaoEstoqueProduto)
-					VALUES (@IdPedido, @IdMovimentacao);
+					VALUES (@IdProducao, @IdMovimentacao);
 
 				--validacao de erros 
 				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
@@ -139,6 +139,9 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoFimProducao]
 
 				DELETE TOP (1)
 					FROM #Tabela;
+
+				SELECT 	@IdMovimentacao = NULL,
+						@IdProducao = NULL;
 			END
 
 			DROP TABLE #Tabela
