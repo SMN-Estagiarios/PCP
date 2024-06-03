@@ -331,7 +331,7 @@ END;
 
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoDeUmCliente]
+CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoDeUmCliente] 
     @Nome VARCHAR(255),
     @StatusPedido CHAR(1)
 
@@ -351,9 +351,7 @@ AS
 
             DECLARE @DataInicio DATETIME = GETDATE();
 
-            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'Danyel Targino', 'A';
-
-            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'Thays Carvalho', 'P';
+            EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'João Silva', 'A';
 
             EXEC [dbo].[SP_RelatorioPedidoDeUmCliente] 'Thomaz Falbo', 'N';
 
@@ -366,7 +364,7 @@ BEGIN
 
     IF @StatusPedido NOT IN ('A', 'P', 'N')
         BEGIN
-            RAISERROR('Tipo de relatório inválido. Use as letras "A" para "atrasado", "P" para "no prazo" ou "N" para "não entreguee".', 16, 1);
+            RAISERROR('Status do pedido inválido. Use as letras "A" para "atrasado", "P" para "no prazo" ou "N" para "não entreguee".', 16, 1);
             RETURN;
         END;
 
@@ -387,3 +385,4 @@ BEGIN
 END;
 
 GO
+
