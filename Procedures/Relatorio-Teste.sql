@@ -5,7 +5,7 @@ AS
 /*
     Documentação
     Arquivo Fonte: Relatiorio.sql;
-    Objetivo: Listar todos os pedido concluídos e entregue, porém em atraso;
+    Objetivo: Listar todos os pedido concluídos e entregues, porém em atraso;
     Autor: Pedro Avelino;
     Data: 30/05/2024
     Ex: 
@@ -58,22 +58,22 @@ AS
     Ex:
         BEGIN TRAN
 
-        SELECT *
-            FROM [dbo].[Pedido] WITH (NOLOCK) 
+            SELECT *
+                FROM [dbo].[Pedido] WITH (NOLOCK) 
 
-            DBCC DROPCLEANBUFFERS
-            DBCC FREEPROCCACHE
+                DBCC DROPCLEANBUFFERS
+                DBCC FREEPROCCACHE
 
-            DECLARE @Data_Inicio DATETIME = GETDATE(),
-                    @Retorno AS INT;
+                DECLARE @Data_Inicio DATETIME = GETDATE(),
+                        @Retorno AS INT;
 
-            EXEC [dbo].[SP_RelatorioPedidoEntregueNoPrazo];
+                EXEC [dbo].[SP_RelatorioPedidoEntregueNoPrazo];
 
-            SELECT @Retorno AS Retorno,
-                DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo;
-            
-        SELECT *
-            FROM [dbo].[Pedido] WITH (NOLOCK) 
+                SELECT @Retorno AS Retorno,
+                    DATEDIFF(MILLISECOND, @Data_Inicio, GETDATE()) AS Tempo;
+                
+            SELECT *
+                FROM [dbo].[Pedido] WITH (NOLOCK) 
         
         ROLLBACK TRAN
 */
@@ -93,53 +93,68 @@ END;
 
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoPorPagina]
-    @Pagina INT = NULL,
-    @TamanhoPagina INT
+CREATE PROCEDURE [dbo].[SP_RelatorioPedidosProducaoPausada]
 
 AS
 
 /*
     Documentação
-    Arquivo Fonte: Relatorio.sql
-    Objetivo: Listar os pedidos dividindo-os por página
-    Autor: Pedro Avelino
-    Data: 31/04
-    Ex:
-        BEGIN TRAN
+    Arquivo Fonte:......Relatorio.sql
+    Objetivo:...........Listar todos os pedidos em que a produção está pausada;
+    Autor:..............Pedro Avelino;
+    Data:...............04/06/2024
+    Ex:.................
+                        BEGIN TRAN
 
-            DBCC DROPCLEANBUFFERS
-            DBCC FREEPROCCACHE
+                            DBCC DROPCLEANBUFFERS
+                            DBCC FREEPROCCACHE
 
-            DECLARE @DataInicio DATETIME = GETDATE();
+                            DECLARE @DataInicio DATETIME = GETDATE();
 
-            EXEC [dbo].[SP_RelatorioPedidoPorPagina] 3, 10;
+                            EXEC [dbo].[SP_RelatorioPedidosProducaoPausada];
 
-            SELECT DATEDIFF (MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
-
-        ROLLBACK TRAN
+                            SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+                        
+                        ROLLBACK TRAN
 */
 
 BEGIN
 
+END;
 
-    DECLARE @Inicio INT;
-    SET @Inicio = (@Pagina - 1) * @TamanhoPagina;
+GO
 
-    IF @Pagina IS NULL
-        BEGIN   
-            SET @Inicio = 0;
-        END;
+CREATE PROCEDURE [dbo].[SP_RelatorioProducaoConcluidaComEtapaEmAtraso]
 
-    SELECT  Id,
-            IdCliente,
-            DataPedido,
-            DataPromessa,
-            DataEntrega
-        FROM [dbo].[Pedido] 
-        ORDER BY Id
-            OFFSET @Inicio ROWS
-            FETCH NEXT @TamanhoPagina ROWS ONLY;
+AS
+
+/*
+    Documentação
+    Arquivo Fonte:.............Relatorio.sql
+    Objetivo:..................Listar as produções concluídas com etapas atrasadas;
+    Autor:.....................Pedro Avelino;
+    Data:......................04/06/24;
+    Ex:........................
+                                BEGIN TRAN
+
+                                    DBCC DROPCLEANBUFFERS
+                                    DBCC FREEPROCCACHE
+
+                                    DECLARE @DataIncio DATETIME = GETDATE();
+
+                                    EXEC [dbo].[SP_RelatorioProducaoConcluidaComEtapaEmAtraso];
+
+                                    SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+
+                                ROLLBACK TRAN
+*/
+
+BEGIN
+
+    SELECT  *
+        FROM [dbo].[Producao] p
+        INNER JOIN EtapaProducao ep
+            ON p.IdEtapaProducao = ep.Id
 END;
 
 
@@ -155,28 +170,69 @@ AS
 
 /*
     Documentação
-    Arquivo Fonte: Relatorio.sql
-    Objetivo: Listar o produto mais vendido em um período de tempo específico;
-    Autor: Pedro Avelino;
-    Data: 31/05/24
-    Ex: 
-        BEGIN TRAN
+    Arquivo Fonte:.............Relatorio.sql
+    Objetivo:..... ............Listar o produto mais vendido em um período de tempo específico;
+    Autor:.....................Pedro Avelino;
+    Data:......................31/05/24
+    Ex:........................ BEGIN TRAN
 
-            DBCC DROPCLEANBUFFERS
-            DBCC FREEPROCCACHE
+                                    DBCC DROPCLEANBUFFERS
+                                    DBCC FREEPROCCACHE
 
-            DECLARE @DataIncio DATETIME = GETDATE();
+                                    DECLARE @DataIncio DATETIME = GETDATE();
 
-            EXEC [dbo].[SP_RelatorioProdutoMaisVendido] @Ano = 2024, @Mes = 2;
+                                    EXEC [dbo].[SP_RelatorioProdutoMaisVendido] @Ano = 2021, @Mes = 12;
 
-            SELECT DATEDIFF (MILLISECOND, @DataIncio, GETDATE()) AS Tempo;
+                                    SELECT DATEDIFF (MILLISECOND, @DataIncio, GETDATE()) AS Tempo;
 
-        ROLLBACK TRAN
+                                ROLLBACK TRAN
+
+                                Retornos:...4 - Ano inválido
+                                            3 - Mês inválido
+                                            2 - Dia inválido
+                                            1 - Período especificado sem pedidos
+                                            0 - Sucesso
+       
 */
 
-BEGIN
+BEGIN 
 
     BEGIN TRY
+        --Verificação da validade do ano 
+        IF @Ano IS NOT NULL AND (@Ano < 2020 OR @Ano > YEAR(GETDATE()))
+            BEGIN 
+                RAISERROR('Ano inválido. Por favor, insira um ano entre 2020 e o ano atual', 16, 1);
+                RETURN 4;
+            END
+        
+        -- Verificação da validade do mês
+        IF @Mes IS NOT NULL AND (@Mes < 1 OR @Mes > 12)
+            BEGIN 
+                RAISERROR('Mês inválido. Por favor, insira um mês entre 1 e 12', 16, 1);
+                RETURN 3;
+            END
+        
+        --Verificação da validade do dia
+        IF @Dia IS NOT NULL AND (@Dia < 1 OR @Dia > 31)
+            BEGIN
+                RAISERROR('Dia inválido. Por favor, insira um dia entre 1 e 31', 16, 1);
+                RETURN 2;
+            END
+        
+        --Verificação se existem pedidos naquele período especificado
+        IF NOT EXISTS (
+                        SELECT TOP 1 1
+                            FROM [dbo].[Pedido] p
+                            WHERE (@Ano IS NULL OR YEAR(p.DataPedido) = @Ano)
+                AND(@Mes IS NULL OR MONTH(p.DataPedido) = @Mes)
+                AND(@Dia IS NULL OR DAY(p.DataPedido) = @Dia)
+        )
+            BEGIN 
+                RAISERROR('Não existem pedidos nesse período especificado', 16, 1);
+                RETURN 1;
+            END
+
+        -- Consulta dos produto mais vendidos
         SELECT  TOP 1
                 pr.Id,
                 pr.Nome,
@@ -191,6 +247,8 @@ BEGIN
                 AND(@Dia IS NULL OR DAY(p.DataPedido) = @Dia)
             GROUP BY pr.Id, pr.Nome
             ORDER BY QuantidadeVendida DESC;
+
+            RETURN 0;
     END TRY
 
     BEGIN CATCH
@@ -204,133 +262,7 @@ END;
 
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidosDeUmClienteEmAtraso]
-    @Nome VARCHAR(255)
-AS
-
-/*
-    Documentação
-    Arquivo Fonte: Relatorio.sql
-    Objetivo: Listar todos os pedidos de um cliente específico entregues em atraso;
-    Autor: Pedro Avelino;
-    Data: 31/05/2024
-    Ex: 
-        BEGIN TRAN 
-            
-            DBCC DROPCLEANBUFFERS
-            DBCC FREEPROCCACHE
-
-            DECLARE @DataInicio DATETIME = GETDATE();
-
-            EXEC [dbo].[SP_RelatorioPedidosDeUmClienteEmAtraso] 'João Silva';
-
-            SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE() AS Tempo);
-
-        ROLLBACK TRAN
-*/
-
-BEGIN
-
-    SELECT  p.Id,
-            c.Nome,
-            p.DataPedido,
-            p.DataPromessa,
-            p.DataEntrega 
-        FROM [dbo].[Cliente] c
-        INNER JOIN [dbo].[Pedido] p
-            ON c.Id = p.IdCliente
-        WHERE DataEntrega IS NOT NULL 
-            AND DataEntrega > DataPromessa
-            AND c.Nome = @Nome;
-END;
-
-
-GO
-
-
-CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidosDeUmClienteEntregueNoPrazo]
-    @Nome VARCHAR (255)
-
-AS
-/*
-    Documentação
-    Arquivo Fonte: Relatorio.sql
-    Objetivo: Listar todos os pedidos de um cliente específico entregues dentro do prazo;
-    Autor: Pedro Avelino;
-    Data: 31/05/2024
-    Ex: 
-        BEGIN TRAN 
-            
-            DBCC DROPCLEANBUFFERS
-            DBCC FREEPROCCACHE
-
-            DECLARE @DataInicio DATETIME = GETDATE();
-
-            EXEC [dbo].[SP_RelatorioPedidosDeUmClienteEntregueNoPrazo] 'João Silva';
-
-            SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
-
-        ROLLBACK TRAN
-*/
-
-BEGIN
-
-    SELECT  p.Id,
-            c.Nome,
-            p.DataPedido,
-            p.DataPromessa,
-            p.DataEntrega 
-        FROM [dbo].[Cliente] c
-        INNER JOIN [dbo].[Pedido] p
-            ON c.Id = p.IdCliente
-        WHERE DataEntrega IS NOT NULL 
-            AND DataEntrega <= DataPromessa
-            AND c.Nome = @Nome;
-END;
-
-GO
-
-CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidosDeUmClienteAindaNãoEntregues]
-    @Nome VARCHAR (255)
-
-AS
-/*
-    Documentação
-    Arquivo Fonte: Relatorio.sql
-    Objetivo: Listar todos os pedidos de um cliente específico ainda não entregues;
-    Autor: Pedro Avelino;
-    Data: 31/05/2024
-    Ex: 
-        BEGIN TRAN 
-            
-            DBCC DROPCLEANBUFFERS
-            DBCC FREEPROCCACHE
-
-            DECLARE @DataInicio DATETIME = GETDATE();
-
-            EXEC [dbo].[SP_RelatorioPedidosDeUmClienteAindaNãoEntregues] 'Pedro Avelino';
-
-            SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
-
-        ROLLBACK TRAN
-*/
-
-BEGIN
-
-    SELECT  p.Id,
-            c.Nome,
-            p.DataPedido,
-            p.DataPromessa
-        FROM [dbo].[Cliente] c
-        INNER JOIN [dbo].[Pedido] p
-            ON c.Id = p.IdCliente
-        WHERE DataEntrega IS NOT NULL 
-            AND DataEntrega IS NULL
-            AND c.Nome = @Nome;
-END;
-
-GO
-
+--9
 CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoDeUmCliente] 
     @Nome VARCHAR(255),
     @StatusPedido CHAR(1)
@@ -385,3 +317,53 @@ BEGIN
 END;
 
 GO
+
+--João disse
+CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoPorPagina]
+    @Pagina INT = NULL,
+    @TamanhoPagina INT
+
+AS
+
+/*
+    Documentação
+    Arquivo Fonte: Relatorio.sql
+    Objetivo: Listar os pedidos dividindo-os por página
+    Autor: Pedro Avelino
+    Data: 31/04
+    Ex:
+        BEGIN TRAN
+
+            DBCC DROPCLEANBUFFERS
+            DBCC FREEPROCCACHE
+
+            DECLARE @DataInicio DATETIME = GETDATE();
+
+            EXEC [dbo].[SP_RelatorioPedidoPorPagina] 3, 10;
+
+            SELECT DATEDIFF (MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+
+        ROLLBACK TRAN
+*/
+
+BEGIN
+
+
+    DECLARE @Inicio INT;
+    SET @Inicio = (@Pagina - 1) * @TamanhoPagina;
+
+    IF @Pagina IS NULL
+        BEGIN   
+            SET @Inicio = 0;
+        END;
+
+    SELECT  Id,
+            IdCliente,
+            DataPedido,
+            DataPromessa,
+            DataEntrega
+        FROM [dbo].[Pedido] 
+        ORDER BY Id
+            OFFSET @Inicio ROWS
+            FETCH NEXT @TamanhoPagina ROWS ONLY;
+END;
