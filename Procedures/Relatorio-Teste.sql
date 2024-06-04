@@ -1,3 +1,4 @@
+--1.1
 CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoEmAtraso]
 
 AS
@@ -45,6 +46,7 @@ END;
 
 GO
 
+--1.2
 CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoEntregueNoPrazo]
 
 AS
@@ -93,6 +95,7 @@ END;
 
 GO
 
+--2
 CREATE PROCEDURE [dbo].[SP_RelatorioPedidosProducaoPausada]
 
 AS
@@ -120,10 +123,23 @@ AS
 
 BEGIN
 
+    SELECT * FROM Pedido
+    SELECT * FROM PedidoProduto
+    SELECT * FROM Producao 
+
+    SELECT p.Id AS 'Id do Pedido'
+        FROM [dbo].[Pedido] p
+        INNER JOIN [dbo].[PedidoProduto] pp
+            ON p.Id = pp.IdPedido
+        INNER JOIN [dbo].[Producao] pr
+            ON pp.Id = pr.IdPedidoProduto
+        WHERE DataTermino IS NULL;
+
 END;
 
 GO
 
+--3
 CREATE PROCEDURE [dbo].[SP_RelatorioProducaoConcluidaComEtapaEmAtraso]
 
 AS
@@ -160,7 +176,29 @@ END;
 
 GO
 
+--4
+CREATE PROCEDURE[dbo].[SP_RelatorioRankingDeProdutosMaisPedidos]
 
+AS
+
+BEGIN
+    SELECT COUNT(DISTINCT(IdProduto)) 
+        FROM PedidoProduto
+END;
+
+GO
+
+CREATE PROCEDURE [dbo].[SP_RelatorioDePedidosEntreguesNãoConcluidos]
+
+AS
+
+BEGIN
+
+END;
+
+GO
+
+--8
 CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioProdutoMaisVendido]
     @Ano INT = NULL,
     @Mes INT = NULL,
