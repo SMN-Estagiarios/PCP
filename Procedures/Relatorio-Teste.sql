@@ -1,4 +1,4 @@
---1.1
+-- QUESTÃO 1.1
 CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoEmAtraso]
 
 AS
@@ -46,7 +46,7 @@ END;
 
 GO
 
---1.2
+--QUESTÃO 1.2
 CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoEntregueNoPrazo]
 
 AS
@@ -95,9 +95,9 @@ END;
 
 GO
 
---2
-CREATE PROCEDURE [dbo].[SP_RelatorioPedidosProducaoPausada]
-
+-- QUESTÃO 2
+CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidosProducaoPausada] 
+    
 AS
 
 /*
@@ -111,10 +111,12 @@ AS
 
                             DBCC DROPCLEANBUFFERS
                             DBCC FREEPROCCACHE
+                            DBCC FREESYSTEMCACHE('ALL')
 
                             DECLARE @DataInicio DATETIME = GETDATE();
 
                             EXEC [dbo].[SP_RelatorioPedidosProducaoPausada];
+
 
                             SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
                         
@@ -123,23 +125,35 @@ AS
 
 BEGIN
 
-    SELECT * FROM Pedido
-    SELECT * FROM PedidoProduto
-    SELECT * FROM Producao 
-
-    SELECT p.Id AS 'Id do Pedido'
-        FROM [dbo].[Pedido] p
-        INNER JOIN [dbo].[PedidoProduto] pp
-            ON p.Id = pp.IdPedido
-        INNER JOIN [dbo].[Producao] pr
-            ON pp.Id = pr.IdPedidoProduto
-        WHERE DataTermino IS NULL;
-
-END;
+    WITH EtapaMaxima AS (
+        SELECT  IdProduto,
+                MAX(NumeroEtapa) AS MaxEtapa
+            FROM [dbo].[EtapaProducao] WITH (NOLOCK)
+            GROUP BY IdProduto
+    ), ContagemPedidoProduto AS (
+        SELECT  IdPedidoProduto,
+                COUNT(IdPedidoProduto) AS Contagem
+            FROM [dbo].[Producao] WITH (NOLOCK)
+            GROUP BY IdPedidoProduto
+    )
+        SELECT p.Id
+            FROM [dbo].[Pedido] p WITH (NOLOCK)
+                INNER JOIN [dbo].[PedidoProduto] pp WITH (NOLOCK)
+                    ON p.Id = pp.IdPedido
+                INNER JOIN [dbo].[Producao] pr WITH (NOLOCK)
+                    ON pr.IdPedidoProduto = pp.Id
+                INNER JOIN ContagemPedidoProduto cpp
+                    ON pp.Id = cpp.IdPedidoProduto
+                INNER JOIN EtapaMaxima em
+                    ON pp.IdProduto = em.IdProduto
+            WHERE cpp.Contagem < em.MaxEtapa
+                AND pr.DataTermino IS NOT NULL
+                AND p.DataEntrega IS NULL;
+ END;
 
 GO
 
---3
+-- QUESTÃO 3
 CREATE PROCEDURE [dbo].[SP_RelatorioProducaoConcluidaComEtapaEmAtraso]
 
 AS
@@ -155,6 +169,7 @@ AS
 
                                     DBCC DROPCLEANBUFFERS
                                     DBCC FREEPROCCACHE
+                                    DBCC FREESYSTEMCACHE('ALL')
 
                                     DECLARE @DataIncio DATETIME = GETDATE();
 
@@ -167,39 +182,99 @@ AS
 
 BEGIN
 
-    SELECT  *
-        FROM [dbo].[Producao] p
-        INNER JOIN EtapaProducao ep
-            ON p.IdEtapaProducao = ep.Id
+    SELECT  p.Id AS IdProducao,
+            p.DataInicio AS IncioProducao,
+            p.DataTermino AS TerminoProducao,
+            (DATEDIFF(MINUTE, p.DataInicio, p.DataTermino) - ep.Duracao) AS Atraso
+        FROM [dbo].[Producao] p WITH (NOLOCK)
+            LEFT JOIN [dbo].[EtapaProducao] ep WITH (NOLOCK)
+                ON p.IdEtapaProducao = ep.Id 
+        WHERE p.DataTermino IS NOT NULL
+            AND DATEDIFF(MINUTE, p.DataInicio, p.DataTermino) > ep.Duracao;
 END;
 
 
 GO
 
---4
-CREATE PROCEDURE[dbo].[SP_RelatorioRankingDeProdutosMaisPedidos]
+-- QUESTÃO 4
+CREATE OR ALTER PROCEDURE[dbo].[SP_RankingDeProdutosMaisPedidos]
 
 AS
 
+/*
+    Documentação
+    Arquivo Fonte: Relatorio.sql
+    Objetivo: Ranquear os produtos mais vendidos
+    Autor: Pedro Avelino
+    Data: 05/06/24
+    Ex: 
+        BEGIN TRAN
+
+            DBCC DROPCLEANBUFFERS
+            DBCC FREEPROCCACHE
+
+            DECLARE @DataInicio DATETIME = GETDATE();
+
+            EXEC [dbo].[SP_RankingDeProdutosMaisPedidos];
+
+            SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+
+        ROLLBACK TRAN
+*/
+
 BEGIN
-    SELECT COUNT(DISTINCT(IdProduto)) 
-        FROM PedidoProduto
+    SELECT  p.Id,
+            p.Nome,
+            SUM(pp.Quantidade) AS SomaQuantidade,
+            DENSE_RANK() OVER (ORDER BY SUM(pp.Quantidade) DESC) AS Ranking
+        FROM [dbo].[PedidoProduto] pp WITH (NOLOCK)
+            INNER JOIN [dbo].[Produto] p WITH (NOLOCK)
+                ON pp.IdProduto = p.Id
+            GROUP BY p.Id, p.Nome
 END;
 
 GO
 
-CREATE PROCEDURE [dbo].[SP_RelatorioDePedidosEntreguesNãoConcluidos]
+
+-- QUESTÃO 5
+
+
+--QUESTÃO 6
+CREATE PROCEDURE [dbo].[SP_RankingEtapasMaisAtrasadas]
 
 AS
 
+/*
+    Documentação
+    Arquivo Fonte: Relatorio.sql
+    Objetivo: Ranquear as etapas mais atrasadas
+    Autor: Pedro Avelino;
+    Data: 05/06/24
+    Ex: 
+        BEGIN TRAN
+
+            DBCC DROPCLEANBUFFERS
+            DBCC FREEPROCCACHE
+
+            DECLARE @DataInicio DATETIME = GETDATE();
+
+            EXEC [dbo].[SP_RankingEtapasMaisAtrasadas]
+
+            SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+
+        ROLLBACK TRAN
+*/
+
 BEGIN
+
+    SELECT  * FROM EtapaProducao
 
 END;
 
 GO
 
---8
-CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioProdutoMaisVendido]
+-- QUESTÃO 8
+CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioProdutoMaisVendido] 
     @Ano INT = NULL,
     @Mes INT = NULL,
     @Dia INT = NULL
