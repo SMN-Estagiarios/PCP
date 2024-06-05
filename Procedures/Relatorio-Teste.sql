@@ -237,6 +237,18 @@ GO
 
 
 -- QUESTÃO 5
+CREATE PROCEDURE [dbo].[SP_RelatoriosPedidosEntreguesNãoConcluidos]
+
+AS
+
+BEGIN
+
+    SELECT * FROM Cliente; 
+
+END;
+
+
+GO
 
 
 --QUESTÃO 6
@@ -268,6 +280,19 @@ AS
 BEGIN
 
     SELECT  * FROM EtapaProducao
+
+END;
+
+GO
+
+--QUESTÃO 7
+CREATE PROCEDURE [dbo].[SP_RankingProdutosMaisAtrasados]
+
+AS
+
+BEGIN
+
+    SELECT * FROM Produto
 
 END;
 
@@ -375,7 +400,7 @@ END;
 
 GO
 
---9
+-- QUESTÃO 9
 CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioPedidoDeUmCliente] 
     @Nome VARCHAR(255),
     @StatusPedido CHAR(1)
@@ -427,6 +452,32 @@ BEGIN
             OR (@StatusPedido = 'P' AND p.DataEntrega IS NOT NULL AND p.DataEntrega <= p.DataPromessa)
             OR (@StatusPedido = 'N' AND p.DataEntrega IS NULL)
         );
+END;
+
+GO
+
+--QUESTÃO 10
+CREATE PROCEDURE [dbo].[SP_RelatorioNumeroDePedidosTrimestraisAoLongoDeTresAnos]
+
+AS
+
+BEGIN
+
+    SELECT * FROM Cliente;
+
+END;
+
+GO
+
+--QUESTÃO 11
+CREATE PROCEDURE [dbo].[SP_StatusDeProducoes]
+
+AS
+
+BEGIN
+
+    SELECT * FROM Producao;
+
 END;
 
 GO
