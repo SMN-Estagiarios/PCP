@@ -190,3 +190,46 @@ CREATE TABLE [dbo].[Producao]	(
 										REFERENCES [dbo].[PedidoProduto] (Id)
 								);
 GO
+
+-- -----------------------------------------------------
+-- Tabela [dbo].[PedidoMovimetacaoEstoqueProduto]
+-- -----------------------------------------------------
+CREATE TABLE [dbo].[AuditoriaMovimetacaoSaidaEstoqueProduto](
+														IdPedido INT NOT NULL,
+														IdMovimentacaoEstoqueProduto INT NOT NULL UNIQUE
+														CONSTRAINT fk_IdPedido_AuditoriaMovimetacaoSaidaEstoqueProduto
+															FOREIGN KEY (IdPedido)
+															REFERENCES [dbo].[Pedido] (Id),
+														CONSTRAINT fk_IdMovimetacaoEstoqueProduto_AuditoriaMovimetacaoSaidaEstoqueProduto
+															FOREIGN KEY (IdMovimentacaoEstoqueProduto)
+															REFERENCES [dbo].[MovimentacaoEstoqueProduto] (Id)
+													);
+GO
+
+CREATE TABLE [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto](
+														IdProducao INT NOT NULL,
+														IdMovimentacaoEstoqueProduto INT NOT NULL UNIQUE
+														CONSTRAINT fk_IdPedido_AuditoriaMovimetacaoEntradaEstoqueProduto
+															FOREIGN KEY (IdProducao)
+															REFERENCES [dbo].[Producao] (Id),
+														CONSTRAINT fk_IdMovimetacaoEstoqueProduto_AuditoriaMovimetacaoEntradaEstoqueProduto
+															FOREIGN KEY (IdMovimentacaoEstoqueProduto)
+															REFERENCES [dbo].[MovimentacaoEstoqueProduto] (Id)
+													);
+GO
+
+-- -----------------------------------------------------
+-- Tabela [dbo].[PedidoMovimetacaoEstoqueMateriaPrima]
+-- -----------------------------------------------------
+CREATE TABLE [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima](
+														IdPedido INT NOT NULL,
+														IdMovimentacaoEstoqueMateriaPrima INT NOT NULL UNIQUE
+														CONSTRAINT fk_IdPedido_AuditoriaMovimetacaoEstoqueMateriaPrima
+															FOREIGN KEY (IdPedido)
+															REFERENCES [dbo].[Pedido] (Id),
+														CONSTRAINT fk_IdMovimetacaoEstoqueMateriaPrima_AuditoriaMovimetacaoEstoqueMateriaPrima
+															FOREIGN KEY (IdMovimentacaoEstoqueMateriaPrima)
+															REFERENCES [dbo].[MovimentacaoEstoqueMateriaPrima] (Id)
+													);
+GO
+

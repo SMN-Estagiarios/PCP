@@ -10,14 +10,12 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 								quando o mesmo é entregue ao cliente
 		Autor................:	Adriel Alexander
 		Data.................:	24/05/2024
-		Autores Alteracao....:  Gustavo Targino
+		Autores Alteracao....:  Odlavir, Adriel 
+		Data Alteracao.......:	03/06/2024
 		Ex...................:  BEGIN TRAN
-									DBCC DROPCLEANBUFFERS;
-									DBCC FREEPROCCACHE;
-
-									DECLARE @DATA_INI DATETIME = GETDATE();
-									
+								
 									SELECT * FROM [dbo].[Pedido] WITH(NOLOCK)
+										WHERE Id = 37 
 
 									 SELECT Id,
 									 		IdTipoMovimentacao,
@@ -25,21 +23,31 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 									 		DataMovimentacao,
 									 		Quantidade
 									 	FROM [dbo].[MovimentacaoEstoqueProduto]
-									 	WHERE IdEstoqueProduto = 1
-
-									SElECT *
-										FROM EstoqueProduto
-										WHERE IdProduto IN (1,2)
+									 	WHERE IdEstoqueProduto IN (24, 14, 29)
+										ORDER BY id DESC
 									
 									SELECT IdProduto,
 										   QuantidadeFisica,
 										   QuantidadeMinima 
 										FROM [dbo].[Estoqueproduto] 
-										WHERE IdProduto = 1
+										WHERE IdProduto IN (24, 14, 29)
+									
+									SELECT TOP 1 * 
+										FROM [AuditoriaMovimetacaoSaidaEstoqueProduto]
+										ORDER BY idMovimentacaoEstoqueProduto DESC 
+									
+									DBCC DROPCLEANBUFFERS;
+									DBCC FREEPROCCACHE;
+									DBCC FREESYSTEMCACHE('ALL');
+
+									DECLARE @DataInicio DATETIME = GETDATE();
 
 									UPDATE [dbo].[Pedido]
-										SET DataEntrega = GETDATE()+1
+										SET DataEntrega = GETDATE()
 										WHERE Id = 37
+
+									SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE())
+									
 								
 									SELECT Id,
 										   IdTipoMovimentacao,
@@ -47,31 +55,37 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 										   DataMovimentacao,
 										   Quantidade
 										FROM [dbo].[MovimentacaoEstoqueProduto]	
-										WHERE IdEstoqueProduto = 1
+										WHERE IdEstoqueProduto IN (24, 14, 29)
+										ORDER BY id DESC
+
 										
 									SELECT IdProduto,
 										   QuantidadeFisica,
 										   QuantidadeMinima 
 										FROM [dbo].[Estoqueproduto] 
-										WHERE IdProduto IN (1,2)
+										WHERE IdProduto IN (24, 14, 29)
 
 									SELECT * FROM [dbo].[Pedido] WITH(NOLOCK)
+										WHERE Id = 37
+
+									SELECT TOP 1 * 
+										FROM [AuditoriaMovimetacaoSaidaEstoqueProduto]
+										ORDER BY idMovimentacaoEstoqueProduto DESC 
 								
 								ROLLBACK TRAN					
 	*/
 	BEGIN
 		--Declarando Variaveis 
-		DECLARE @DataAtual DATETIME = GETDATE(),
-				@IdEstoqueProduto INT,
+		DECLARE @DataMovimentacao DATETIME = GETDATE(),
 				@Quantidade INT,
 				@IdPedido INT,
 				@IdProduto INT,
 				@DataEntregaInserted DATE,
 				@DataEntregaDeleted DATE,
 				@IdTipoMovimentacao INT = 1,
-				@RET INT
-			
-		-- atribuicoes de valores para as variaveis 
+				@IdMovimentacao INT 
+
+		-- atribuicoes de valores para as variaveis de validacao 
 		SELECT @DataEntregaInserted = DataEntrega
 			FROM INSERTED
 		
@@ -82,7 +96,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 					IdPedido INT,
 					IdProduto INT,
 					Quantidade INT,
-					DataEntregaInserted DATETIME
+					DataEntrega DATETIME
 			)
 
 		--verifica se o motivo do update foi a realizacao da entrega dos produtos aos clientes
@@ -90,8 +104,8 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 			BEGIN 
 				SET @IdTipoMovimentacao = 2
 
-				INSERT INTO #ProdutosDoPedido (IdPedido, IdProduto, Quantidade, DataEntregaInserted)
-					SELECT  pp.Id,
+				INSERT INTO #ProdutosDoPedido (IdPedido, IdProduto, Quantidade, DataEntrega)
+					SELECT  i.Id,
 							pp.IdProduto,
 							pp.Quantidade,
 							i.DataEntrega
@@ -104,8 +118,8 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 		--Caso mude de nao nulo para nulo
 		ELSE IF @DataEntregaInserted IS NULL AND @DataEntregaDeleted IS NOT NULL
 			BEGIN
-				INSERT INTO #ProdutosDoPedido (IdPedido, IdProduto, Quantidade, DataEntregaInserted)
-					SELECT  pp.Id,
+				INSERT INTO #ProdutosDoPedido (IdPedido, IdProduto, Quantidade, DataEntrega)
+					SELECT  i.Id,
 							pp.IdProduto,
 							pp.Quantidade,
 							i.DataEntrega
@@ -123,19 +137,38 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_GerarMovimentacaoPorEntregaDePedido]
 			END
 			
 			-- Inserir movimentacao em etoque produto com retirada de estoque
-			WHILE EXISTS ( SELECT TOP 1 1 
-							FROM #ProdutosDoPedido )
+			WHILE EXISTS (
+							 SELECT TOP 1 1 
+								FROM #ProdutosDoPedido
+						 )
 				BEGIN
 					SELECT TOP 1 @IdPedido = IdPedido,
 								@IdProduto = IdProduto,
 								@Quantidade = Quantidade,
-								@DataEntregaInserted = DataEntregaInserted
+								@DataMovimentacao = DataEntrega
 						FROM #ProdutosDoPedido
 
-					EXEC @RET = [dbo].[SP_InserirMovimentacaoEstoqueProduto] @IdProduto, @IdTipoMovimentacao, @DataAtual, @Quantidade
-					PRINT @RET
+					--Insere o registro de movimentacao 
+					EXEC [dbo].[SP_InserirMovimentacaoEstoqueProduto] @IdProduto, @IdTipoMovimentacao, @DataMovimentacao, @Quantidade
+					
+					--setando o valor do id com base no ultimo registro de movimentacao 
+					SET @IdMovimentacao = IDENT_CURRENT('MovimentacaoEstoqueProduto')
 
-					DELETE TOP (1) FROM #ProdutosDoPedido
+					--Registra a qual pedido se referen os registros de movimentacao 
+					INSERT INTO [dbo].[AuditoriaMovimetacaoSaidaEstoqueProduto] (IdPedido, IdMovimentacaoEstoqueProduto)
+						VALUES (@IdPedido, @IdMovimentacao) 
+					
+					--valição de error para insert de auditoria 
+					IF @@ERROR <> 0 OR @@ROWCOUNT <> 1 
+						BEGIN
+							ROLLBACK TRAN
+							RAISERROR('Impossivel inserir audtoria de movimentação ', 16,1);
+							RETURN 
+						END
+
+					--faz o delete do registro que foi inserido anteriormente 
+					DELETE TOP (1) 
+						FROM #ProdutosDoPedido
 				END
 
 				DROP TABLE #ProdutosDoPedido
