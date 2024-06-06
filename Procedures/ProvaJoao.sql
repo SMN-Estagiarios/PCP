@@ -41,7 +41,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                                 ROLLBACK TRAN
         Retornos.............:  0 - Sucesso
                                 1 - Não há produções em tempo real
-    */ --idprod = 104915    idpedprod = 29944
+    */
     BEGIN
         
         --Declarar variável
