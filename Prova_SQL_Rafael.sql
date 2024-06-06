@@ -17,9 +17,9 @@ AS
                                 EXEC [dbo].[SP_ListarPesoEstoqueMateriaPrima] 1, 1
 
                                 SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao;
+                            ROLLBACK TRAN
         Retornos.........:  0 - Sucesso
                             1 - Erro: Valor para mês inválido
-                            ROLLBACK TRAN
     */  
     BEGIN
     
