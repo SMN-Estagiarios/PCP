@@ -13,14 +13,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                                     DBCC DROPCLEANBUFFERS
                                     DBCC FREESYSTEMCACHE('ALL')
 
+                                    UPDATE EstoqueMateriaPrima
+                                        SET QuantidadeFisica = 3000
                                     --Declarar variáveis
                                     DECLARE @Ret INT,
                                             @DataInicio DATETIME = GETDATE()
-
-                                    --Inserção para exemplo
-                                    UPDATE [dbo].[EstoqueMateriaPrima]
-                                        SET QuantidadeFisica = 9999999
-                                        WHERE IdMateriaPrima IN(1, 2, 3)
 
                                     INSERT INTO [dbo].[Pedido](IdCliente, DataPedido, DataPromessa)
                                         VALUES(1, GETDATE(), GETDATE() + 10)
@@ -29,7 +26,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                                         VALUES(IDENT_CURRENT('Pedido'), 1, 69)
 
                                     INSERT INTO [dbo].[Producao](IdEtapaProducao, IdPedidoProduto, DataInicio, DataTermino, Quantidade)
-                                        VALUES (1, IDENT_CURRENT('PedidoProduto'), GETDATE(), NULL, 1)
+                                        VALUES (1, IDENT_CURRENT('PedidoProduto'), GETDATE(), NULL, 99)
 
                                     --Capturar retorno
                                     EXEC @Ret = [dbo].[SP_ListarProducoesTempoReal]
@@ -55,10 +52,25 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                         )
             BEGIN
                 RETURN 1
-            END;
+            END
+
+        CREATE TABLE #CompraMateriaPrima    (
+                                                IdPedidoProduto INT,
+                                                Compra BIT
+                                            )
+
+        INSERT INTO #CompraMateriaPrima
+            SELECT  pp.Id,
+                    1
+                FROM [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima] amemp
+                    INNER JOIN [dbo].[MovimentacaoEstoqueMateriaPrima] memp
+                        ON amemp.IdMovimentacaoEstoqueMateriaPrima = memp.Id
+                    INNER JOIN [dbo].[PedidoProduto] pp 
+                        ON amemp.IdPedido = pp.IdPedido
+                WHERE memp.IdTipoMovimentacao = 1
 
         --Buscar a data da última produção de cada produto
-        WITH UltimaProducao AS
+        ;WITH UltimaProducao AS
         (
             SELECT  pp.IdProduto,
                     MAX(pr.DataTermino) AS DataUltimaProducao
@@ -67,24 +79,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                         ON pr.IdPedidoProduto = pp.Id
                 WHERE pr.DataTermino IS NOT NULL  
                 GROUP BY pp.IdProduto
-        ),
-        --Checar se houve compra de matéria prima
-        CompraMateriaPrima AS
-        (
-            SELECT  DISTINCT    pr.Id AS IdProducao,
-                                (
-                                    CASE WHEN memp.idTipoMovimentacao = 1 THEN 'Sim'
-                                    END
-                                ) AS Compra
-                FROM [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima] amemp WITH(NOLOCK)
-                    INNER JOIN [dbo].[Pedido] pe WITH(NOLOCK)
-                        ON amemp.IdPedido = pe.Id
-                    INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
-                        ON pe.Id = pp.IdPedido
-                    INNER JOIN [dbo].[Producao] pr WITH(NOLOCK)
-                        ON pp.Id = pr.IdPedidoProduto
-                    INNER JOIN [dbo].[MovimentacaoEstoqueMateriaPrima] memp WITH(NOLOCK)
-                        ON amemp.IdMovimentacaoEstoqueMateriaPrima = memp.Id
         )
             --Listar as produções em tempo real
             SELECT  pe.Id AS IdPedido,
@@ -97,7 +91,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                         END
                     ) AS Atraso,
                     up.DataUltimaProducao,
-                    cmp.Compra
+                    (
+                        CASE    WHEN EXISTS (
+                                                SELECT TOP 1 1
+                                                    FROM [#CompraMateriaPrima] cmp
+                                                    WHERE IdPedidoProduto = pp.Id
+                                            ) THEN 'Sim'
+                                ELSE 'Não'
+                        END
+                    ) AS Compra
                 FROM [dbo].[Producao] pr WITH(NOLOCK)
                     INNER JOIN [dbo].[PedidoProduto] pp WITH(NOLOCK)
                         ON pr.IdPedidoProduto = pp.Id
@@ -109,11 +111,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                         ON pr.IdEtapaProducao = ep.Id
                     INNER JOIN [UltimaProducao] up
                         ON pp.IdProduto = up.IdProduto
-                    INNER JOIN [CompraMateriaPrima] cmp
-                        ON pp.Id = cmp.IdProducao
-                WHERE   pr.DataTermino IS NULL
-                        AND cmp.Compra IS NOT NULL
+
+                WHERE pr.DataTermino IS NULL
                 ORDER BY pr.Id DESC
     END
 GO
-
