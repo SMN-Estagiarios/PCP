@@ -4,7 +4,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularEstoqueReal]	(
 	RETURNS INT
 	AS
 	/*
-	Documentacao
+	Documentacao 
 	Arquivo Fonte...: FNC_CalcularEstoqueReal.sql
 	Objetivo........: Calcular o estoque real de um produto para aquele momento
 	Autor...........: Odlavir Florentino
