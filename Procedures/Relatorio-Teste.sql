@@ -535,14 +535,53 @@ END;
 GO
 
 --QUESTÃO 10
-CREATE PROCEDURE [dbo].[SP_RelatorioNumeroDePedidosTrimestraisAoLongoDeTresAnos]
+CREATE OR ALTER PROCEDURE [dbo].[SP_RelatorioNumeroDePedidosTrimestraisAoLongoDeTresAnos]
 
 AS
 
+/*
+    Documentação
+    Arquivo Fonte.....: Relatorio.sql
+    Objetivo..........: Listar os clientes com seus números de pedidos trimestrais ao longo de três anos;
+    Autor.............: Pedro Avelino;
+    Data..............: 06/06/24
+    Ex................:
+                        BEGIN TRAN
+
+                            DBCC DROPCLEANBUFFERS
+                            DBCC FREEPROCCACHE
+                            DBCC FREESYSTEMCACHE('ALL')
+
+                            DECLARE @DataInicio DATETIME = GETDATE();
+
+                            EXEC [dbo].[SP_RelatorioNumeroDePedidosTrimestraisAoLongoDeTresAnos]
+
+                            SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
+
+                        ROLLBACK TRAN 
+*/
+
 BEGIN
 
-    SELECT * FROM Cliente;
+    DECLARE @DataAtual DATE = GETDATE(); 
 
+    SELECT  x.IdCliente,
+            x.Trimestre,
+            x.Ano,
+            COUNT(x.IdCliente) AS TotalPedidos,
+            DENSE_RANK() OVER (PARTITION BY x.Trimestre, x.Ano ORDER BY COUNT(x.IdCliente) DESC)
+        AS Ranking   
+        FROM (
+            SELECT  p.IdCliente AS IdCliente,
+                    YEAR(p.DataPedido) AS Ano,
+                    DATEPART(QUARTER, p.DataPedido) AS Trimestre
+                FROM [dbo].[Pedido] p WITH (NOLOCK)
+                WHERE YEAR(p.DataPedido) BETWEEN YEAR(@DataAtual) - 2
+                                            AND YEAR(@DataAtual) 
+            ) x
+        GROUP BY    x.IdCliente,  
+                    x.Trimestre,
+                    x.Ano;
 END;
 
 GO
