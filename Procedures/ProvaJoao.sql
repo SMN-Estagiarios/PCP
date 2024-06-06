@@ -28,7 +28,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                                         VALUES(IDENT_CURRENT('Pedido'), 1, 69)
 
                                     INSERT INTO [dbo].[Producao](IdEtapaProducao, IdPedidoProduto, DataInicio, DataTermino, Quantidade)
-                                        VALUES (1, IDENT_CURRENT('PedidoProduto'), GETDATE(), NULL, 99)
+                                        VALUES (1, IDENT_CURRENT('PedidoProduto'), GETDATE(), NULL, 2)
 
                                     --Capturar retorno
                                     EXEC @Ret = [dbo].[SP_ListarProducoesTempoReal]
@@ -96,11 +96,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                     ) AS Atraso,
                     up.DataUltimaProducao,
                     (
-                        CASE    WHEN EXISTS (
-                                                SELECT TOP 1 1
-                                                    FROM [#CompraMateriaPrima] cmp
-                                                    WHERE IdPedidoProduto = pp.Id
-                                            ) THEN 'Sim'
+                        CASE    WHEN cmp.Compra IS NOT NULL THEN 'Sim'
                                 ELSE 'Não'
                         END
                     ) AS Compra
@@ -115,6 +111,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                         ON pr.IdEtapaProducao = ep.Id
                     INNER JOIN [UltimaProducao] up
                         ON pp.IdProduto = up.IdProduto
+                    LEFT JOIN [#CompraMateriaPrima] cmp
+                        ON pp.Id = cmp.IdPedidoProduto
                 WHERE pr.DataTermino IS NULL
                 ORDER BY pr.Id DESC
     END
