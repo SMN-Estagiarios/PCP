@@ -17,12 +17,13 @@ AS
 
                         DECLARE @DataInicio DATETIME = GETDATE();
 
-                        EXEC [dbo].[SP_PedidoAtrasado] @Ano = 2020, @Mes = 1; 
+                        EXEC [dbo].[SP_PedidoAtrasado] @Ano = 2024, @Mes = 8; 
 
                         SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS Tempo;
     
-    Retornos..........: 2 - Ano inválido
-                        1 - Mês inválido
+    Retornos..........: 3 - Ano inválido
+                        2 - Mês inválido
+                        1 - Não há registros de pedidos no mês especificado
                         0 - Sucesso                     
 */
 
@@ -35,15 +36,27 @@ BEGIN
     IF @Ano IS NOT NULL AND (@Ano < 2020 OR @Ano > YEAR(GETDATE()))
         BEGIN 
             RAISERROR('Ano inválido. Por favor, insira um ano entre 2020 e o ano atual', 16, 1);
-            RETURN 2;
+            RETURN 3;
         END
 
     -- Verificação da validade do mês
     IF @Mes IS NOT NULL AND (@Mes < 1 OR @Mes > 12)
         BEGIN 
             RAISERROR('Mês inválido. Por favor, insira um mês entre 1 e 12', 16, 1);
-            RETURN 1;
+            RETURN 2;
         END;
+
+    --Verificação se existem pedidos naquele período especificado
+    IF NOT EXISTS (
+                    SELECT TOP 1 1
+                        FROM [dbo].[Pedido] p
+                        WHERE (@Ano IS NULL OR YEAR(p.DataPedido) = @Ano)
+            AND(@Mes IS NULL OR MONTH(p.DataPedido) = @Mes)
+    )
+        BEGIN 
+            RAISERROR('Não existem pedidos nesse período especificado', 16, 1);
+            RETURN 1;
+        END
 
 
     --Consulta do pedido junto com detalhes do produto e as etapas;
