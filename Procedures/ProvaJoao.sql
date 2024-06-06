@@ -13,11 +13,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                                     DBCC DROPCLEANBUFFERS
                                     DBCC FREESYSTEMCACHE('ALL')
 
-                                    UPDATE EstoqueMateriaPrima
-                                        SET QuantidadeFisica = 3000
                                     --Declarar variáveis
                                     DECLARE @Ret INT,
                                             @DataInicio DATETIME = GETDATE()
+
+                                    --Inserir para exemplo
+                                    UPDATE EstoqueMateriaPrima
+                                        SET QuantidadeFisica = 3000
 
                                     INSERT INTO [dbo].[Pedido](IdCliente, DataPedido, DataPromessa)
                                         VALUES(1, GETDATE(), GETDATE() + 10)
@@ -54,11 +56,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                 RETURN 1
             END
 
+        --Criar tabela temporária
         CREATE TABLE #CompraMateriaPrima    (
                                                 IdPedidoProduto INT,
                                                 Compra BIT
                                             )
 
+        --Inserir na tabela temporária os PedidosProdutos que houveram compra de estoque
         INSERT INTO #CompraMateriaPrima
             SELECT  pp.Id,
                     1
