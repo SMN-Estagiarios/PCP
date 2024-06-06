@@ -11,7 +11,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirMateriaPrima]
 								SELECT *
 									FROM [dbo].[MateriaPrima] WITH(NOLOCK)
 
-								DBCC FREEPROCCACHE
+							
+							
 								DBCC FREESYSTEMCACHE('ALL')
 								DBCC DROPCLEANBUFFERS
 
@@ -66,7 +67,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarMateriaPrima]
 	/*
 		Documentacao
 		Arquivo Fonte.....: materiaprima.sql
-		Objetivo..........: Listar um ou vários registros da tabela de materia prima.
+		Objetivo..........: Listar um ou vï¿½rios registros da tabela de materia prima.
 		Autor.............: Odlavir Florentino
 		Data..............: 21/05/2024
 		Ex................: BEGIN TRAN
