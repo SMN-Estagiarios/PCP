@@ -115,7 +115,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                         ON pr.IdEtapaProducao = ep.Id
                     INNER JOIN [UltimaProducao] up
                         ON pp.IdProduto = up.IdProduto
-
                 WHERE pr.DataTermino IS NULL
                 ORDER BY pr.Id DESC
     END
