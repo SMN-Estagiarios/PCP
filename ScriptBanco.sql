@@ -209,7 +209,7 @@ GO
 CREATE TABLE [dbo].[AuditoriaMovimetacaoEntradaEstoqueProduto](
 														IdProducao INT NOT NULL,
 														IdMovimentacaoEstoqueProduto INT NOT NULL UNIQUE
-														CONSTRAINT fk_IdPedido_AuditoriaMovimetacaoEntradaEstoqueProduto
+														CONSTRAINT fk_IdProducao_AuditoriaMovimetacaoEntradaEstoqueProduto
 															FOREIGN KEY (IdProducao)
 															REFERENCES [dbo].[Producao] (Id),
 														CONSTRAINT fk_IdMovimetacaoEstoqueProduto_AuditoriaMovimetacaoEntradaEstoqueProduto
