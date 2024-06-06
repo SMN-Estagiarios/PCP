@@ -162,5 +162,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ConsumoMateriaPrima2]
                     ON mp.Id = mm11.IdEstoqueMateriaPrima
                 INNER JOIN MovimentacaoMensal12 mm12
                     ON mp.Id = mm12.IdEstoqueMateriaPrima
+                ORDER BY Media ASC
     END
 GO
