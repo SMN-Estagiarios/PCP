@@ -40,18 +40,18 @@ AS
             SELECT  mp.Id AS CodigoMateriaPrima,
                     mp.Nome AS NomeMateriaPrima,
                     AVG(emp.QuantidadeFisica / 1000.0) AS PesoEmQuilos -- Converte gramas para quilos
-                FROM dbo.MateriaPrima mp
-                    INNER JOIN dbo.EstoqueMateriaPrima emp 
+                FROM dbo.MateriaPrima mp WITH(NOLOCK)
+                    INNER JOIN dbo.EstoqueMateriaPrima emp WITH(NOLOCK)
                         ON mp.Id = emp.IdMateriaPrima
-                    INNER JOIN dbo.MovimentacaoEstoqueMateriaPrima memp 
+                    INNER JOIN dbo.MovimentacaoEstoqueMateriaPrima memp WITH(NOLOCK)
                         ON emp.IdMateriaPrima = memp.IdEstoqueMateriaPrima
                 WHERE memp.DataMovimentacao < @DataFim  -- Considera apenas movimentações antes do fim do mês
                 GROUP BY mp.Id, mp.Nome;
     
             -- Calcula e exibe o total em quilos de todas as matérias-primas no mês
             SELECT SUM(emp.QuantidadeFisica / 1000.0) AS TotalEmQuilos
-                FROM dbo.EstoqueMateriaPrima emp
-                    INNER JOIN dbo.MovimentacaoEstoqueMateriaPrima memp 
+                FROM dbo.EstoqueMateriaPrima emp WITH(NOLOCK)
+                    INNER JOIN dbo.MovimentacaoEstoqueMateriaPrima memp WITH(NOLOCK)
                         ON emp.IdMateriaPrima = memp.IdEstoqueMateriaPrima
                 WHERE memp.DataMovimentacao < @DataFim; -- Considera apenas movimentações antes do fim do mês
         RETURN 0
