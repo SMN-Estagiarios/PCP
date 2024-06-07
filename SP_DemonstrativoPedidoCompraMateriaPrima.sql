@@ -29,10 +29,17 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_DemonstrativoPedidoCompraMateriaPrima]  @Mes
 
     */
     BEGIN
+        --Trata o input de ano e mes de processamento para os atuais, caso sejam nulos
+        IF @MesProcessamento IS NULL
+            SET @MesProcessamento = MONTH(GETDATE())
+        
+        IF @AnoProcessamento IS NULL
+            SET @AnoProcessamento = YEAR(GETDATE()) 
+
         --Verifica se há pedido nessa data
         IF NOT EXISTS   (
                             SELECT TOP 1 1
-                                FROM [dbo].[Pedido]
+                                FROM [dbo].[Pedido] WITH(NOLOCK)
                                 WHERE   YEAR(DataPedido) = @AnoProcessamento
                                         	AND MONTH(DataPedido) = @MesProcessamento
                         )
