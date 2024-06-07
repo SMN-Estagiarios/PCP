@@ -190,8 +190,6 @@ CREATE TABLE [dbo].[Producao]	(
 										REFERENCES [dbo].[PedidoProduto] (Id)
 								);
 GO
-<<<<<<< HEAD
-=======
 
 -- -----------------------------------------------------
 -- Tabela [dbo].[PedidoMovimetacaoEstoqueProduto]
@@ -235,4 +233,3 @@ CREATE TABLE [dbo].[AuditoriaMovimetacaoEstoqueMateriaPrima](
 													);
 GO
 
->>>>>>> v1.2
