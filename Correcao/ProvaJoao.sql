@@ -116,5 +116,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarProducoesTempoReal]
                         ON pp.Id = cmp.IdPedidoProduto
                 WHERE pr.DataTermino IS NULL
                 ORDER BY pr.Id DESC
+
+        --Excluir tabela temporária
+        DROP TABLE #CompraMateriaPrima
     END
 GO
