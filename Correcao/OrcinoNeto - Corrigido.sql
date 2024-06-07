@@ -79,7 +79,7 @@ CREATE OR ALTER PROCEDURE [dbo].[ExtratoMovimentacaoMateriaPrima]
                     ON emp.IdMateriaPrima = memp.IdEstoqueMateriaPrima
                 INNER JOIN [dbo].[MateriaPrima] mp WITH(NOLOCK)
                     ON mp.Id = emp.IdMateriaPrima
-                --SubConsulta para puxar a media de entrada e saida do mês.
+                --SubConsulta que retorna a média de entrada e saída do mês.
                 INNER JOIN  (
                                 SELECT  mp.Id,
                                         AVG (                                              
@@ -103,7 +103,7 @@ CREATE OR ALTER PROCEDURE [dbo].[ExtratoMovimentacaoMateriaPrima]
                                     GROUP BY mp.Id
                             ) sed 
                     ON sed.Id = mp.Id 
-            --Condição para que so exiba as datas de movimentação de acordo com a data de extrato digitada no parametro.                               
+            --Condição para que só exiba as datas de movimentação de acordo com a data de extrato digitada no paramêtro.                               
             WHERE memp.DataMovimentacao >= @DataInicial 
                 AND memp.DataMovimentacao <= @DataFinal 
                 AND mp.Id = ISNULL(@Id,mp.id)
