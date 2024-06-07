@@ -14,7 +14,7 @@ AS
 
                                 DECLARE @DataInicio DATETIME = GETDATE();
 
-                                EXEC [dbo].[SP_ListarPesoEstoqueMateriaPrima] 1, 1
+                                EXEC [dbo].[SP_CalcularSaldoMedioMateriaPrima] 1, 1
 
                                 SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao;
                             ROLLBACK TRAN
