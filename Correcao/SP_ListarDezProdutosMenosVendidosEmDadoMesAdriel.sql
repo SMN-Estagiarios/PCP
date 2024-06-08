@@ -18,7 +18,7 @@ AS
                         DECLARE @DataInicio DATETIME = GETDATE(),   
                                 @RET INT
 
-                        EXEC @RET = [dbo].[SP_ListarDezProdutosMenosVendidosEmDadoMes] 2022, 12;
+                        EXEC @RET = [dbo].[SP_ListarDezProdutosMenosVendidosEmDadoMes] 2022, 01;
 
                         SELECT DATEDIFF(MILLISECOND, @DataInicio, GETDATE()) AS TempoExecucao,
                                 @RET AS Retorno
@@ -30,9 +30,7 @@ AS
     BEGIN 
         -- Declarando variaveis pertinentes ao processamento
         DECLARE @DataProcessamento DATE,
-                @AnoAnterior INT,
-                @MesAnterior INT,
-                @MesAnteriorAoAnterior INT
+                @AnoAnterior INT
 
         -- Validacao do Mes, passado por parametro
         IF  @Mes > 12 OR @Mes <-12 OR @Mes IS NULL
@@ -48,11 +46,9 @@ AS
 
         -- Atribui valor a data do mês/ano passado como parametro e calcular os valores de mes e anos anteriores
         SELECT  @DataProcessamento = DATEFROMPARTS(ABS(@Ano), ABS(@Mes), DAY(GETDATE())),
-                @AnoAnterior = YEAR(DATEADD(YEAR, -1, @DataProcessamento)),
-                @MesAnterior = MONTH(DATEADD(MONTH,-1,@DataProcessamento)),
-                @MesAnteriorAoAnterior = MONTH(DATEADD(MONTH,-2, @DataProcessamento));
-
-        --seleciona os 12 meses para cada idProduto para calcular a media anual com base nos meses
+		        @AnoAnterior = YEAR(DATEADD(YEAR, -1, @DataProcessamento));
+        
+		--seleciona os 12 meses para cada idProduto para calcular a media anual com base nos meses
         WITH SeparaMesesProduto AS
             (  
                 SELECT DISTINCT MONTH(p.DataPedido) AS MesesDoAno,
@@ -69,11 +65,11 @@ AS
 								    THEN pp.Quantidade 
 									ELSE 0 
 							END) AS QuantidadeVendidaNoMes,
-						SUM(CASE WHEN DATEDIFF(MONTH, p.DataPedido, @DataProcessamento) = @MesAnterior 
+						SUM(CASE WHEN DATEDIFF(MONTH, p.DataPedido, @DataProcessamento) = 1
 									THEN pp.Quantidade 
 									ELSE 0 
 							END) AS QuantidadeVendidaMesAnterior,
-						SUM(CASE WHEN DATEDIFF(MONTH, p.DataPedido, @DataProcessamento) = @MesAnteriorAoAnterior
+						SUM(CASE WHEN DATEDIFF(MONTH, p.DataPedido, @DataProcessamento) = 2
 									THEN pp.Quantidade 
 									ELSE 0 
 							END) AS QuantidadeVendidaMesAnteriorAoAnterior
